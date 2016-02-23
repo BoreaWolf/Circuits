@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+simulation
+diagnoses
+
+# Vim swap file
+.*.swp
+
+# Instance files
+./instances/*
