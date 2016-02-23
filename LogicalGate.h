@@ -6,23 +6,25 @@
  *
  */
 
-#ifndef LOGICAL_PORT
-#define LOGICAL_PORT
+#ifndef LOGICAL_GATE
+#define LOGICAL_GATE
 
 #include "Component.h"
-#include "FailureStatus.h"
+#include "GateStatus.h"
 
 #include <vector>
 
-class LogicalPort : public Component
+class LogicalGate : public Component
 {
 	public:
-		LogicalPort();
-		~LogicalPort();
+		LogicalGate();
+		~LogicalGate();
+
+		virtual int compute() = 0;
 	
-	private:
+	protected:
 		std::vector< Component* > _inputs;
-		FailureStatus status;
+		GateStatus _status;
 };
 
 #endif

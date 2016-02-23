@@ -17,6 +17,10 @@ class Component
 	public:
 		Component( std::string );
 		~Component();
+
+		int get_value(){ return _value; }
+
+		std::string get_name(){ return _name; }
 	
 	protected:
 		std::string _name;
