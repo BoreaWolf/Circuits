@@ -2,7 +2,7 @@
  * Author: Riccardo Orizio (R)
  * Date: 23 February 2016
  *
- * Description: Class for handling a set of Circuits objects
+ * Description: Implementation of CircuitSet class
  *
  */
 

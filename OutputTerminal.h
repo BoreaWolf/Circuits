@@ -11,13 +11,15 @@
 
 #include "Component.h"
 
+// TODO: Think about this class a little more
 class OutputTerminal : public Component
 {
 	public:
-		OutputTerminal();
-		~OutputTerminal();
-	
-	private:
+		OutputTerminal()
+		{	}
+
+		~OutputTerminal()
+		{	}
 };
 
 #endif

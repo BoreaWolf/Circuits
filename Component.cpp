@@ -8,19 +8,19 @@
 
 #include "Component.h"
 
-Component::Component( std::string name )
-{
-	_name = name;
-	_value = 0;
-	fprintf( stdout, "Component::Component %s Created %p\n",
-				_name.c_str(),
-				this );
-}
-
-Component::~Component()
-{
-	fprintf( stdout, "Component::~Component %s Destroying %p\n",
-				_name.c_str(),
-				this );
-}
-
+//	Component::Component( std::string name )
+//	{
+//		_name = name;
+//		_value = 0;
+//		fprintf( stdout, "Component::Component %s Created %p\n",
+//					_name.c_str(),
+//					this );
+//	}
+//	
+//	Component::~Component()
+//	{
+//		fprintf( stdout, "Component::~Component %s Destroying %p\n",
+//					_name.c_str(),
+//					this );
+//	}
+//	

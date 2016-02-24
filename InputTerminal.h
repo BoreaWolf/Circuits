@@ -14,10 +14,22 @@
 class InputTerminal : public Component
 {
 	public:
-		InputTerminal();
-		~InputTerminal();
-	
-	private:
+		InputTerminal( std::string name )
+		{
+			_name = name;
+
+			fprintf( stdout, "InputTerminal::InputTerminal Created %s @ %p\n",
+						_name.c_str(),
+						this );
+			fflush( stdout );
+		}
+
+		~InputTerminal()
+		{
+			fprintf( stdout, "InputTerminal::~InputTerminal Destroying %s @ %p\n",
+						_name.c_str(),
+						this );
+		}
 };
 
 #endif

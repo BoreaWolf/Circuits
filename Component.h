@@ -15,12 +15,14 @@
 class Component
 {
 	public:
-		Component( std::string );
-		~Component();
-
-		int get_value(){ return _value; }
+		//	No sense for this to be created
+		//	Component( std::string );
+		//	~Component();
 
 		std::string get_name(){ return _name; }
+
+		int get_value(){ return _value; }
+		void set_value( int value ){ _value = value; }
 	
 	protected:
 		std::string _name;

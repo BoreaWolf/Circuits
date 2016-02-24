@@ -16,17 +16,20 @@
 class NotGate : public LogicalGate
 {
 	public:
-		NotGate();
-		~NotGate();
+		NotGate( std::string name, std::vector< std::string >& inputs ) :
+			LogicalGate( name, inputs )
+		{	}
+		~NotGate()
+		{	}
 	
 		int compute()
 		{
 			int result;
 			// Checking if this gate has some issues
-			if( _status == GateStatus::correct )
+			if( get_status() == GateStatus::correct )
 				result = ~_inputs.at( 0 )->get_value();
 			else
-				result = _status;
+				result = get_status_value();
 
 			return result;
 		}
