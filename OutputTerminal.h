@@ -11,15 +11,17 @@
 
 #include "Component.h"
 
-// TODO: Think about this class a little more
+#include <string>
+
 class OutputTerminal : public Component
 {
 	public:
-		OutputTerminal()
-		{	}
+		OutputTerminal( const std::string&, Component* );
+		~OutputTerminal();
 
-		~OutputTerminal()
-		{	}
+	private:
+		// Pointer to the corresponding gate
+		Component* _gate;
 };
 
 #endif

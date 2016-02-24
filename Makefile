@@ -10,10 +10,11 @@ COPT = -std=c++11
 TARGETS = simulation diagnoses
 
 # Objects
-OBJ = circuit.o circuit_set.o component.o constants.o
+GATES = and_gate.o input_terminal.o logical_gate.o nand_gate.o nor_gate.o \
+		not_gate.o output_terminal.o or_gate.o xnor_gate.o xor_gate.o
+OBJ = circuit.o circuit_set.o component.o constants.o $(GATES)
 
-GATES = AndGate.h NandGate.h NorGate.h NotGate.h OrGate.h XnorGate.h XorGate.h
-HEADERS = GateStatus.h InputTerminal.h LogicalGate.h OutputTerminal.h $(GATES)
+HEADERS = GateStatus.h
 
 # Dependencies
 # Main programs
@@ -34,6 +35,29 @@ component.o:	Component.h Component.cpp
 
 constants.o:	constants.h constants.cpp
 	$(CCC) $(COPT) -c constants.cpp -o constants.o
+
+# Gates
+input_terminal.o:	InputTerminal.h InputTerminal.cpp
+	$(CCC) $(COPT) -c InputTerminal.cpp -o input_terminal.o
+output_terminal.o:	OutputTerminal.h OutputTerminal.cpp
+	$(CCC) $(COPT) -c OutputTerminal.cpp -o output_terminal.o
+
+logical_gate.o:	LogicalGate.h LogicalGate.cpp
+	$(CCC) $(COPT) -c LogicalGate.cpp -o logical_gate.o
+and_gate.o:		AndGate.h AndGate.cpp
+	$(CCC) $(COPT) -c AndGate.cpp -o and_gate.o
+nand_gate.o:	NandGate.h NandGate.cpp
+	$(CCC) $(COPT) -c NandGate.cpp -o nand_gate.o
+nor_gate.o:		NorGate.h NorGate.cpp
+	$(CCC) $(COPT) -c NorGate.cpp -o nor_gate.o
+not_gate.o:		NotGate.h NotGate.cpp
+	$(CCC) $(COPT) -c NotGate.cpp -o not_gate.o
+or_gate.o:		OrGate.h OrGate.cpp
+	$(CCC) $(COPT) -c OrGate.cpp -o or_gate.o
+xnor_gate.o:	XnorGate.h XnorGate.cpp
+	$(CCC) $(COPT) -c XnorGate.cpp -o xnor_gate.o
+xor_gate.o:		XorGate.h XorGate.cpp
+	$(CCC) $(COPT) -c XorGate.cpp -o xor_gate.o
 
 # Everything all together
 all: $(TARGETS)

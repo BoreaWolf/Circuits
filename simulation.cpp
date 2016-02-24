@@ -34,7 +34,7 @@ int main( int argc, char ** argv )
 		// If the user doesn't specifies any input file, I'll read all the
 		// instances and solve them
 		input_circuits.push_back( "./instances/C17.txt" );
-		input_circuits.push_back( "./instances/C432.txt" );
+		//	input_circuits.push_back( "./instances/C432.txt" );
 	}
 
 	// For every input file received I create one circuit instance

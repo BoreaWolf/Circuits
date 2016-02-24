@@ -24,6 +24,7 @@
 #include <fstream>
 #include <map>
 #include <regex>
+#include <string>
 #include <vector>
 
 // Map to easily access every component of the circuit
@@ -32,21 +33,23 @@ typedef std::map< std::string, Component* > component_map;
 class Circuit
 {
 	public:
-		Circuit( std::string );
+		Circuit( const std::string& );
 		~Circuit();
 	
 	private:
 		// Methods
-		void load( std::string );
+		void load( const std::string& );
 		
 		// Attributes
+		std::string _name;
+
 		// Map of pointers to every item in the circuit
 		component_map _components;
 
 		// The real components of the circuit
-		std::vector< InputTerminal > _input;
+		std::vector< InputTerminal* > _input;
 		// The output is nothing else than a final logical gate
-		std::vector< LogicalGate* > _output;
+		std::vector< OutputTerminal* > _output;
 		std::vector< LogicalGate* > _logical_gates;
 };
 

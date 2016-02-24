@@ -11,30 +11,16 @@
 
 #include "LogicalGate.h"
 
+#include <string>
 #include <vector>
 
 class NotGate : public LogicalGate
 {
 	public:
-		NotGate( std::string name, std::vector< std::string >& inputs ) :
-			LogicalGate( name, inputs )
-		{	}
-		~NotGate()
-		{	}
+		NotGate( const std::string&, std::vector< Component* >& );
+		~NotGate();
 	
-		int compute()
-		{
-			int result;
-			// Checking if this gate has some issues
-			if( get_status() == GateStatus::correct )
-				result = ~_inputs.at( 0 )->get_value();
-			else
-				result = get_status_value();
-
-			return result;
-		}
-
-	private:
+		int compute();
 };
 
 #endif
