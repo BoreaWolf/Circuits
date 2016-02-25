@@ -15,6 +15,9 @@ class StringConstants
 {
 	public:
 		static const std::string PATH_INSTANCES;
+		static const std::string PATH_CIRCUITS;
+		static const std::string FILE_INPUT_CONFIGURATION;
+		static const std::string FILE_FAILING_GATES;
 };
 
 #endif

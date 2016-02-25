@@ -18,6 +18,11 @@ class InputTerminal : public Component
 	public:
 		InputTerminal( const std::string& );
 		~InputTerminal();
+
+		void calculate_cone();
+		// This method is not needed here because it's useless, but I need it
+		// anyway, so I'll just implement if empty
+		void calculate_value();
 };
 
 #endif

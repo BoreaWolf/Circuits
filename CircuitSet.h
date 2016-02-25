@@ -21,6 +21,8 @@ class CircuitSet
 		~CircuitSet();
 
 		int size();
+		void solve();
+		void solve( int );
 	
 	private:
 		std::vector< Circuit > _ckts;

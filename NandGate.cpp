@@ -28,18 +28,17 @@ NandGate::~NandGate()
 
 int NandGate::compute()
 {
-	int result;
 	// Checking if this gate has some issues
 	if( get_status() == GateStatus::correct )
 	{
-		result = _inputs.at( 0 )->get_value();
+		_value = _inputs.at( 0 )->get_value();
 		for( size_t i = 1; i < _inputs.size(); i++ )
-			result = ~( result & _inputs.at( i )->get_value() );
+			_value = ~( _value & _inputs.at( i )->get_value() );
 	}
 	else
-		result = get_status_value();
+		_value = get_status_value();
 
-	return result;
+	return _value;
 }
 
 

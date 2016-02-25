@@ -12,6 +12,7 @@
 #include "Component.h"
 #include "GateStatus.h"
 
+#include <string>
 #include <vector>
 
 class LogicalGate : public Component
@@ -23,15 +24,14 @@ class LogicalGate : public Component
 					 const std::string& = std::string() );
 		~LogicalGate();
 
+		void calculate_cone();
+		// TODO: Fix this stuff
 		virtual int compute() = 0;
+		void calculate_value(){ compute(); }
 
-		GateStatus get_status(){ return _status; }
-		int get_status_value(){ return static_cast<int>( _status ); }
-		void set_status( GateStatus status ){ _status = status; }
-	
 	protected:
+		// Inputs of the gate
 		std::vector< Component* > _inputs;
-		GateStatus _status;
 };
 
 #endif

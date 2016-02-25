@@ -40,3 +40,15 @@ int CircuitSet::size()
 {
 	return _ckts.size();
 }
+
+void CircuitSet::solve()
+{
+	for( size_t i = 0; i < _ckts.size(); i++ )
+		solve( i );
+}
+
+void CircuitSet::solve( int ckt_number )
+{
+	_ckts.at( ckt_number ).solve();
+}
+

@@ -15,6 +15,8 @@
 InputTerminal::InputTerminal( const std::string& name )
 {
 	_name = name;
+	_value = GATE_UNKNOWN_VALUE;
+	calculate_cone();
 
 #ifdef DEBUG
 	fprintf( stdout, "InputTerminal::InputTerminal Created %s @ %p\n",
@@ -34,4 +36,11 @@ InputTerminal::~InputTerminal()
 #endif
 }
 
+void InputTerminal::calculate_cone()
+{
+	// For the Input Terminal, the Cone is nothing else than an empty cone
+	_cone = GateCone();
+}
 
+void InputTerminal::calculate_value()
+{	}

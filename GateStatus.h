@@ -9,6 +9,8 @@
 #ifndef GATE_STATUS
 #define GATE_STATUS
 
+#define GATE_UNKNOWN_VALUE -1
+
 enum class GateStatus : int
 {
 	correct = -1,

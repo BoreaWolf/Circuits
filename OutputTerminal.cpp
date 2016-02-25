@@ -16,6 +16,9 @@ OutputTerminal::OutputTerminal( const std::string& name, Component* gate )
 {
 	_name = name;
 	_gate = gate;
+	_value = GATE_UNKNOWN_VALUE;
+
+	calculate_cone();
 
 #ifdef DEBUG
 	fprintf( stdout, "OutputTerminal::OutputTerminal Created %s @ %p ref to %s(%p)\n",
@@ -37,3 +40,14 @@ OutputTerminal::~OutputTerminal()
 #endif
 }
 
+void OutputTerminal::calculate_cone()
+{
+	// TODO: Not really sure about this
+	_cone = _gate->get_cone();
+}
+
+void OutputTerminal::calculate_value()
+{
+	if( get_value() == GATE_UNKNOWN_VALUE )
+		set_value( _gate->get_value() );
+}

@@ -19,6 +19,9 @@ class OutputTerminal : public Component
 		OutputTerminal( const std::string&, Component* );
 		~OutputTerminal();
 
+		void calculate_cone();
+		void calculate_value();
+
 	private:
 		// Pointer to the corresponding gate
 		Component* _gate;

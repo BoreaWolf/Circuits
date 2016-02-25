@@ -10,8 +10,9 @@ COPT = -std=c++11
 TARGETS = simulation diagnoses
 
 # Objects
-GATES = and_gate.o input_terminal.o logical_gate.o nand_gate.o nor_gate.o \
-		not_gate.o output_terminal.o or_gate.o xnor_gate.o xor_gate.o
+GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
+		nor_gate.o not_gate.o output_terminal.o or_gate.o xnor_gate.o \
+		xor_gate.o
 OBJ = circuit.o circuit_set.o component.o constants.o $(GATES)
 
 HEADERS = GateStatus.h
@@ -58,6 +59,9 @@ xnor_gate.o:	XnorGate.h XnorGate.cpp
 	$(CCC) $(COPT) -c XnorGate.cpp -o xnor_gate.o
 xor_gate.o:		XorGate.h XorGate.cpp
 	$(CCC) $(COPT) -c XorGate.cpp -o xor_gate.o
+
+gate_cone.o:	GateCone.h GateCone.cpp
+	$(CCC) $(COPT) -c GateCone.cpp -o gate_cone.o
 
 # Everything all together
 all: $(TARGETS)
