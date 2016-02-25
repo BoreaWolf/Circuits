@@ -43,6 +43,15 @@ int CircuitSolution::get_gate_value_at( int position )
 	return _solution.at( position ).second;
 }
 
+int CircuitSolution::get_gate_value( std::string& gate_name )
+{
+	for( size_t i = 0; i < _solution.size(); i++ )
+		if( _solution.at( i ).first.compare( gate_name ) == 0 )
+			return _solution.at( i ).second;
+
+	return -1;
+}
+
 void CircuitSolution::print( FILE* file )
 {
 	for( size_t i = 0; i < _solution.size(); i++ )

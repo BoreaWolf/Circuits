@@ -95,26 +95,33 @@ void Circuit::compute( CircuitSolution& result )
 
 void Circuit::print_solutions( FILE* file )
 {
-	fprintf( file, "Circuit::print_solutions\n" );
+	fprintf( file, "Circuit::print_solutions Correct/Failure => Result:\n" );
+	for( int i = 0; i < _solution_correct.size(); i++ )
+		fprintf( file, "\tGate %s: %d/%d => %s\n",
+				 _solution_correct.get_gate_name_at( i ).c_str(),
+				 _solution_correct.get_gate_value_at( i ),
+				 _solution_failure.get_gate_value_at( i ),
+				 _solution_comparison.get_comparison_value_at( i ) );
 
-	fprintf( file, "\tCorrect:\n" );
-	_solution_correct.print( file );
+	//	fprintf( file, "\tCorrect:\n" );
+	//	_solution_correct.print( file );
 
-	fprintf( file, "\tFailure:\n" );
-	_solution_failure.print( file );
+	//	fprintf( file, "\tFailure:\n" );
+	//	_solution_failure.print( file );
 
-	fprintf( file, "\tComparison:\n" );
-	_solution_comparison.print( file );
+	//	fprintf( file, "\tComparison:\n" );
+	//	_solution_comparison.print( file );
 }
 
 void Circuit::print_output_values( FILE* file )
 {
-	fprintf( file, "Circuit::print_output_values\n" );
+	fprintf( file, "Circuit::print_output_values Correct/Failure:\n" );
 	for( size_t i = 0; i < _outputs.size(); i++ )
-	{
-		fprintf( file, "\t" );
-		_outputs.at( i )->print_value( file );
-	}
+		fprintf( file, "\tGate %s: %d/%d\n",
+			_outputs.at( i )->get_name().c_str(),
+			_solution_correct.get_gate_value( _outputs.at( i )->get_name() ),
+			_solution_failure.get_gate_value( _outputs.at( i )->get_name() ) );
+
 }
 
 void Circuit::print_output_cones( FILE* file )

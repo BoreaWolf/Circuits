@@ -60,7 +60,7 @@ int NandGate::compute()
 	}
 
 #ifdef DEBUG
-	fprintf( stdout, "= computed %d ", _value );
+	fprintf( stdout, "= computed %d\n", _value );
 #endif
 
 	return _value;

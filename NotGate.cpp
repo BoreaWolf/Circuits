@@ -31,7 +31,7 @@ int NotGate::compute()
 	int result;
 	// Checking if this gate has some issues
 	if( get_status() == GateStatus::correct )
-		result = ~_inputs.at( 0 )->get_value();
+		result = !( _inputs.at( 0 )->get_value() );
 	else
 		result = get_status_value();
 

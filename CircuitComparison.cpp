@@ -44,6 +44,12 @@ void CircuitComparison::compare( CircuitSolution& first,
 			 );
 	}
 }
+
+const char* CircuitComparison::get_comparison_value_at( int position )
+{
+	return to_string( _comparison.at( position ).second );
+}
+
 void CircuitComparison::print( FILE* file )
 {
 	for( size_t i = 0; i < _comparison.size(); i++ )

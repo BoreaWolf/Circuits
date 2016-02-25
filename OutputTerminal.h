@@ -23,6 +23,7 @@ class OutputTerminal : public Component
 		void calculate_value();
 
 		int get_value();
+		void print_value( FILE* = stdout );
 
 	private:
 		// Pointer to the corresponding gate

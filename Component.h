@@ -25,14 +25,14 @@ class Component
 		virtual void calculate_cone() = 0;
 		virtual void calculate_value() = 0;
 
-		std::string get_name(){ return _name; }
+		std::string& get_name(){ return _name; }
 
 		int get_value(){ return _value; }
 		void set_value( int value ){ _value = value; }
 
 		GateCone& get_cone(){ return _cone; }
 
-		GateStatus get_status(){ return _status; }
+		GateStatus& get_status(){ return _status; }
 		int get_status_value(){ return static_cast<int>( _status ); }
 		void set_status( const std::string& );
 

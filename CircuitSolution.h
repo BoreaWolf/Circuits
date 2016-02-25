@@ -27,6 +27,7 @@ class CircuitSolution
 
 		std::string& get_gate_name_at( int );
 		int get_gate_value_at( int );
+		int get_gate_value( std::string& );
 
 		void print( FILE* = stdout );
 		

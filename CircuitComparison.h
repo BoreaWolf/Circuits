@@ -36,6 +36,8 @@ class CircuitComparison
 		~CircuitComparison();
 
 		void compare( CircuitSolution&, CircuitSolution& );
+		const char* get_comparison_value_at( int );
+
 		void print( FILE* = stdout );
 
 	private:

@@ -56,3 +56,10 @@ int OutputTerminal::get_value()
 {
 	return _gate->get_value();
 }
+
+void OutputTerminal::print_value( FILE* file )
+{
+	fprintf( file, "'%s' = %d\n",
+				get_name().c_str(),
+				get_value() );
+}

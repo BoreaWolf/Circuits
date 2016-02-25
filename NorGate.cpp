@@ -34,7 +34,7 @@ int NorGate::compute()
 	{
 		result = _inputs.at( 0 )->get_value();
 		for( size_t i = 1; i < _inputs.size(); i++ )
-			result = ~( result | _inputs.at( i )->get_value() );
+			result = !( result | _inputs.at( i )->get_value() );
 	}
 	else
 		result = get_status_value();
