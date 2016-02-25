@@ -49,5 +49,7 @@ void Component::set_status( const std::string& status )
 
 void Component::print_value( FILE* file )
 {
-	fprintf( file, "'%s' = %d\n", _name.c_str(), _value );
+	fprintf( file, "'%s' = %d\n",
+				get_name().c_str(),
+				get_value() );
 }

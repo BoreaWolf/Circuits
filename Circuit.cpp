@@ -15,6 +15,14 @@
 Circuit::Circuit( const std::string& input_filename )
 {
 	_name = input_filename;
+	_components = component_map();
+	_inputs = std::vector< InputTerminal* >();
+	_outputs = std::vector< OutputTerminal* >();
+	_logical_gates = std::vector< LogicalGate* >();
+	_solution_correct = CircuitSolution();
+	_solution_failure = CircuitSolution();
+	_solution_comparison = CircuitComparison();
+
 	load( _name );
 
 #ifdef DEBUG
@@ -42,15 +50,61 @@ void Circuit::solve( const std::string& initial_conf,
 
 	// Loading the configuration that I have to solve for this circuit
 	load_initial_configuration( initial_conf );
-	load_failing_gates( failing_gates );
 
 	// Solving the circuit
 	fprintf( stdout, "Circuit::solve Solving %s\n", _name.c_str() );
 
-	// Calculating the values of every gate in the circuit, starting from the
-	// output gates and going backwards
-	for( size_t i = 0; i < _outputs.size(); i++ )
-		_outputs.at( i )->calculate_value();
+	// I have to solve the same circuit two times: the first time without any
+	// errors on gates (no failures), the second time with the failures
+	
+	compute( _solution_correct );
+
+	// Adding the information about failing gates
+	load_failing_gates( failing_gates );
+
+	compute( _solution_failure );
+	
+	_solution_comparison.compare( _solution_correct, _solution_failure );
+}
+
+void Circuit::compute( CircuitSolution& result )
+{
+	// Calculating the values of every gate, knowing that I stored them in the
+	// same order in which they were read, so I SHOULD know every gate needed
+	// for the current one (every input of every gate is defined before that
+	// gate)
+	for( size_t i = 0; i < _logical_gates.size(); i++ )
+	{
+#ifdef DEBUG
+		fprintf( stdout, "Gate %s: %d ",
+					_logical_gates.at( i )->get_name().c_str(),
+					_logical_gates.at( i )->get_value() );
+#endif
+
+		_logical_gates.at( i )->calculate_value();
+
+#ifdef DEBUG
+		fprintf( stdout, "=> %d\n",
+					_logical_gates.at( i )->get_value() );
+#endif
+	}
+
+	// Saving the result
+	result.save( _logical_gates );
+}
+
+void Circuit::print_solutions( FILE* file )
+{
+	fprintf( file, "Circuit::print_solutions\n" );
+
+	fprintf( file, "\tCorrect:\n" );
+	_solution_correct.print( file );
+
+	fprintf( file, "\tFailure:\n" );
+	_solution_failure.print( file );
+
+	fprintf( file, "\tComparison:\n" );
+	_solution_comparison.print( file );
 }
 
 void Circuit::print_output_values( FILE* file )
@@ -311,11 +365,13 @@ void Circuit::load_initial_configuration( const std::string& input_filename )
 				_inputs.at( i )->set_value( 1 );
 	}
 
+#ifdef DEBUG
 	fprintf( stdout, "Circuit::load_initial_configuration Input values:\n" );
 	for( size_t i = 0; i < _inputs.size(); i++ )
 		fprintf( stdout, "\t%s -> %d\n",
 					_inputs.at( i )->get_name().c_str(),
 					_inputs.at( i )->get_value() );
+#endif
 
 	// Closing the file
 	input_file.close();
@@ -332,7 +388,9 @@ void Circuit::load_failing_gates( const std::string& input_filename )
 		exit( 1 );
 	}
 
+#ifdef DEBUG
 	fprintf( stdout, "Circuit::load_failing_gates Failures:\n" );
+#endif
 
 	// The file is a list of pairs indicating the name of the gate and the type
 	// of problem that it has
@@ -351,10 +409,12 @@ void Circuit::load_failing_gates( const std::string& input_filename )
 						->second
 						->set_status( line.substr( line.find( " " ) + 1 ) );
 
+#ifdef DEBUG
 			// Updating the user about what is happening
 			fprintf( stdout, "\t%s stucked to %d\n",
 						gate_name.c_str(),
 						_components.find( gate_name )->second->get_status_value() );
+#endif
 		}
 	}
 

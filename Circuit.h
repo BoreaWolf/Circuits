@@ -10,6 +10,8 @@
 #define CIRCUIT
 
 #include "./AndGate.h"
+#include "./CircuitSolution.h"
+#include "./CircuitComparison.h"
 #include "./Component.h"
 #include "./InputTerminal.h"
 #include "./LogicalGate.h"
@@ -41,11 +43,14 @@ class Circuit
 
 		//	std::vector< int >& solve();
 		// TODO: Remove and remove the whole CircuitSet class
+		void compute( CircuitSolution& );
 		void solve();
 		void solve( const std::string&, const std::string& );
+
+		void print_cone( const std::string&, FILE* = stdout );
 		void print_output_values( FILE* = stdout );
 		void print_output_cones( FILE* = stdout );
-		void print_cone( const std::string&, FILE* = stdout );
+		void print_solutions( FILE* = stdout );
 	
 	private:
 		// Methods
@@ -64,6 +69,11 @@ class Circuit
 		// The output is nothing else than a final logical gate
 		std::vector< OutputTerminal* > _outputs;
 		std::vector< LogicalGate* > _logical_gates;
+
+		// Solutions
+		CircuitSolution _solution_correct;
+		CircuitSolution _solution_failure;
+		CircuitComparison _solution_comparison;
 };
 
 #endif

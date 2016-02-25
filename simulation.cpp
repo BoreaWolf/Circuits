@@ -49,6 +49,7 @@ int main( int argc, char ** argv )
 	// Printing some results
 	ckt.print_output_values();
 	ckt.print_output_cones();
+	ckt.print_solutions();
 
 	
 

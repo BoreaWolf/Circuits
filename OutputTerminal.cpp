@@ -51,3 +51,8 @@ void OutputTerminal::calculate_value()
 	if( get_value() == GATE_UNKNOWN_VALUE )
 		set_value( _gate->get_value() );
 }
+
+int OutputTerminal::get_value()
+{
+	return _gate->get_value();
+}

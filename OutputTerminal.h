@@ -22,6 +22,8 @@ class OutputTerminal : public Component
 		void calculate_cone();
 		void calculate_value();
 
+		int get_value();
+
 	private:
 		// Pointer to the corresponding gate
 		Component* _gate;
