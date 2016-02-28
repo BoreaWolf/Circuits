@@ -1,0 +1,37 @@
+Problema
+========
+
+Il problema è relativo a circuiti logici ed è suddiviso in due parti:
+simulazione e diagnostica.
+
+Nella parte di simulazione viene richiesto di simulare un circuito e di
+studiarne le uscite, tenendo conto di eventuali problemi legati ad alcuni
+componenti che potrebbero portare ad avere risultati reali differenti da quelli
+teorici che ci si aspetterebbe.
+
+Tutte le informazioni richieste per poter creare e studiare il circuito ed il
+suo comportamento vengono fornite tramite dei file esterni dati in input al
+programma, descritti qui di seguito:
+
+ 1. Circuito: descrizione dell'intero circuito con tutti i suoi componenti,
+ suddivisi in terminali di ingresso ed uscita e porte logiche interne.
+ 2. Ingressi: valori binari rappresentativi gli ingressi del circuito.
+ 3. Guasti: insieme dei componenti del circuito con guasti, indicativi anche del
+ tipo di guasto ai quali sono soggetti.
+
+Il programma, una volta terminato, genererà diversi file in uscita, i quali
+verranno utilizzati per la parte diagnostica, descriventi diverse componenti del
+circuito appena studiato:
+
+ 1. Uscite teoriche: valori di uscita di tutti i componenti del circuito nel
+ caso in cui non ci sia alcun tipo di guasto nei suoi componenti.
+ 2. Uscite reali: valori di uscita di tutti i componenti del circuito tenendo
+ conto dei guasti dei componenti letti in ingresso.
+ 3. Risultato comparativo delle uscite: indicheremo con OK quei componenti che
+ hanno uscita reale equivalente all'uscita teorica, mentre indicheremo con KO
+ quelle uscite che differiscono tra loro.
+ 4. Coni dei terminali d'uscita: lista dei componenti, esclusi i terminali
+ d'input, dai quali dipende il valore d'uscita.
+
+Nella parte diagnostica viene richiesto di...
+

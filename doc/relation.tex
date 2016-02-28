@@ -1,0 +1,117 @@
+\input{template/mmd-thesis-header}
+\def\mytitle{Circuits}
+\def\myauthor{Riccardo Orizio}
+\def\languages{italian}
+\def\latexmode{memoir}
+\def\tocdepth{2}
+\def\documenttitle{Progetto di Algoritmi e Strutture Dati}
+\def\formattedtitle{Simulazione e Diagnostica di Circuiti Digitali}
+\def\registrationnumber{91956}
+\def\supervisor{Prof.ssa Marina Zanella}
+\def\university{Università degli Studi di Brescia}
+\def\faculty{Dipartimento di Ingegneria dell'Informazione}
+\def\course{Corso di Laurea Magistrale in Ingegneria
+Informatica}
+\def\academicyear{201x-201x}
+\input{template/mmd-natbib-plain}
+\input{template/mmd-equation-mode}
+\input{template/mmd-thesis-begin-doc}
+\input{template/mmd-thesis-titlepage}
+\input{template/mmd-thesis-index}
+
+ % The empty line is important *in every file* 
+
+\chapter{Introduzione}
+\label{introduzione}
+
+In questa documentazione verrà presentato il progetto relativo al corso di
+Algoritmi e Strutture Dati, materia facente parte della laurea magistrale in
+ingegneria informatica, tenuto dalla Professoressa Marina Zanella.
+
+Verranno di seguito illustrati la tipologia di problema e, in modo più
+approfondito, le metodologie risolutive utilizzate, trattando sia le strutture
+dati per la gestione delle informazioni relative al problema sia gli algoritmi.
+Al termine del documento verranno discussi i risultati ottenuti e tutti gli
+accorgimenti presi durante lo sviluppo per ridurre i tempi di esecuzione e per
+ottimizzare le prestazioni per risolvere il problema.
+
+Il software è stato realizzato con il supporto della piattaforma web \emph{GitHub},
+strumento molto utile per la gestione del progetto durante la sua creazione e
+sviluppo; di conseguenza tutto il materiale può essere reperito nella repository
+ \href{https://github.com/BoreaWolf/Circuits}{Circuits}.
+
+TODO: Struttura zip
+
+TODO: Compilazione
+
+
+%   Progetto per ASD
+%   Tutto presente su GitHub @
+%   Struttura dello zip che verrà inviato
+%   Come compilare
+
+
+\chapter{Problema}
+\label{problema}
+
+Il problema è relativo a circuiti logici ed è suddiviso in due parti:
+simulazione e diagnostica.
+
+Nella parte di simulazione viene richiesto di simulare un circuito e di
+studiarne le uscite, tenendo conto di eventuali problemi legati ad alcuni
+componenti che potrebbero portare ad avere risultati reali differenti da quelli
+teorici che ci si aspetterebbe.
+
+Tutte le informazioni richieste per poter creare e studiare il circuito ed il
+suo comportamento vengono fornite tramite dei file esterni dati in input al
+programma, descritti qui di seguito:
+
+\begin{enumerate}
+\item Circuito: descrizione dell'intero circuito con tutti i suoi componenti,
+ suddivisi in terminali di ingresso ed uscita e porte logiche interne.
+
+\item Ingressi: valori binari rappresentativi gli ingressi del circuito.
+
+\item Guasti: insieme dei componenti del circuito con guasti, indicativi anche del
+ tipo di guasto ai quali sono soggetti.
+
+\end{enumerate}
+
+Il programma, una volta terminato, genererà diversi file in uscita, i quali
+verranno utilizzati per la parte diagnostica, descriventi diverse componenti del
+circuito appena studiato:
+
+\begin{enumerate}
+\item Uscite teoriche: valori di uscita di tutti i componenti del circuito nel
+ caso in cui non ci sia alcun tipo di guasto nei suoi componenti.
+
+\item Uscite reali: valori di uscita di tutti i componenti del circuito tenendo
+ conto dei guasti dei componenti letti in ingresso.
+
+\item Risultato comparativo delle uscite: indicheremo con OK quei componenti che
+ hanno uscita reale equivalente all'uscita teorica, mentre indicheremo con KO
+ quelle uscite che differiscono tra loro.
+
+\item Coni dei terminali d'uscita: lista dei componenti, esclusi i terminali
+ d'input, dai quali dipende il valore d'uscita.
+
+\end{enumerate}
+
+Nella parte diagnostica viene richiesto di{\ldots}
+
+\chapter{Simulazione}
+\label{simulazione}
+
+La prima parte del progetto riguarda la simulazione di un circuito digitale bla
+bla bla.
+
+\chapter{Diagnostica}
+\label{diagnostica}
+
+La seconda parte del progetto riguarda diagnosticare particolari richieste
+fatte dall'utente, diagnostiche che verranno svolte su circuiti noti e già
+processati nella parte di simulazione.
+
+\input{template/mmd-thesis-footer}
+
+\end{document}
