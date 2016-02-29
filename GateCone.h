@@ -21,8 +21,8 @@ class GateCone
 		~GateCone();
 
 		size_t size();
-		std::set< std::string >::iterator begin();
-		std::set< std::string >::iterator end();
+		std::set< std::string >::iterator& begin();
+		std::set< std::string >::iterator& end();
 		void insert( std::string& );
 		void join( GateCone& );
 		void print( const std::string&, FILE* = stdout );

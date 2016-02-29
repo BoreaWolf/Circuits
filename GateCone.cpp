@@ -21,12 +21,12 @@ size_t GateCone::size()
 	return _cone.size();
 }
 
-std::set< std::string >::iterator GateCone::begin()
+std::set< std::string >::iterator& GateCone::begin()
 {
 	return _cone.begin();
 }
 
-std::set< std::string >::iterator GateCone::end()
+std::set< std::string >::iterator& GateCone::end()
 {
 	return _cone.end();
 }
