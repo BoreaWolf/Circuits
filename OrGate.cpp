@@ -43,6 +43,10 @@ int OrGate::compute()
 
 		for( size_t i = 1; i < _inputs.size(); i++ )
 		{
+			// Short circuit evaluation
+			if( _value == 1 )
+				break;
+
 			_value |= _inputs.at( i )->get_value();
 
 #ifdef DEBUG

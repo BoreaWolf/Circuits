@@ -9,7 +9,7 @@
 #include "NandGate.h"
 
 #ifndef DEBUG
-//	#define DEBUG
+	#define DEBUG
 #endif
 
 NandGate::NandGate( const std::string& name, std::vector< Component* >& inputs ) : 
