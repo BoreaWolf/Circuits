@@ -43,20 +43,19 @@ void GateCone::join( GateCone& cone )
 
 void GateCone::print( const std::string& component_name, FILE* file )
 {
-	if( _cone.empty() )
-		fprintf( file, "No cone for %s because it's an Input Terminal\n",
-					component_name.c_str() );
-	else
-	{
-		fprintf( file, "Cone( %s ) = {", component_name.c_str() );
-		for( std::set< std::string >::iterator i = _cone.begin(); i != _cone.end(); i++ )
-		{
-			// Just priting details
-			if( i != _cone.begin() )
-				fprintf( file, "," );
+	// Instead of writing a sort of message error when I find an empty cone
+	// (happens when an Output Terminal is directly connected with an Input
+	// Terminal), I'll treat this particular case in the same way of the others,
+	// at the end I will have an empty list of components
 
-			fprintf( file, " %s", i->c_str() );
-		}
-		fprintf( file, " }" );
+	fprintf( file, "Cone( %s ) = {", component_name.c_str() );
+	for( std::set< std::string >::iterator i = _cone.begin(); i != _cone.end(); i++ )
+	{
+		// Just priting details
+		if( i != _cone.begin() )
+			fprintf( file, "," );
+
+		fprintf( file, " %s", i->c_str() );
 	}
+	fprintf( file, " }" );
 }

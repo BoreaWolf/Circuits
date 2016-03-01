@@ -28,18 +28,42 @@ OrGate::~OrGate()
 
 int OrGate::compute()
 {
-	int result;
+#ifdef DEBUG
+	fprintf( stdout, "OrGate::compute computing %lu: ", _inputs.size() );
+#endif
+
 	// Checking if this gate has some issues
 	if( get_status() == GateStatus::correct )
 	{
-		result = _inputs.at( 0 )->get_value();
+		_value = _inputs.at( 0 )->get_value();
+
+#ifdef DEBUG
+		fprintf( stdout, "%d ", _value );
+#endif
+
 		for( size_t i = 1; i < _inputs.size(); i++ )
-			result |= _inputs.at( i )->get_value();
+		{
+			_value |= _inputs.at( i )->get_value();
+
+#ifdef DEBUG
+			fprintf( stdout, "%d(%d) ", _inputs.at( i )->get_value(), _value );
+#endif
+		}
 	}
 	else
-		result = get_status_value();
+	{
+		_value = get_status_value();
 
-	return result;
+#ifdef DEBUG
+		fprintf( stdout, "stuck to %d ", _value );
+#endif
+	}
+
+#ifdef DEBUG
+	fprintf( stdout, "= computed %d\n", _value );
+#endif
+
+	return _value;
 }
 
 

@@ -73,8 +73,8 @@ void Circuit::solve( const std::string& initial_conf,
 void Circuit::compute( CircuitSolution& result )
 {
 	// Calculating the values of every gate, knowing that I stored them in the
-	// same order in which they were read, so I SHOULD know every gate needed
-	// for the current one (every input of every gate is defined before that
+	// same order in which they were read, so I SHOULD know every gate needed to
+	// process the current one (every input of every gate is defined before that
 	// gate)
 	for( size_t i = 0; i < _logical_gates.size(); i++ )
 	{
@@ -92,8 +92,8 @@ void Circuit::compute( CircuitSolution& result )
 #endif
 	}
 
-	// Saving the result
-	result.save( _logical_gates );
+	// Saving the result of every component of the circuit
+	result.save( _components );
 }
 
 void Circuit::print_solutions( FILE* file )

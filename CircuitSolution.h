@@ -12,6 +12,7 @@
 #include "./LogicalGate.h"
 #include "./OutputTerminal.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ class CircuitSolution
 		CircuitSolution();
 		~CircuitSolution();
 
-		void save( std::vector< LogicalGate* >& );
+		void save( std::map< std::string, Component* >& );
 	
 		int size();
 

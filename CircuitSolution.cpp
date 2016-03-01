@@ -16,16 +16,18 @@ CircuitSolution::CircuitSolution()
 CircuitSolution::~CircuitSolution()
 {	}
 
-void CircuitSolution::save( std::vector< LogicalGate* >& result )
+void CircuitSolution::save( std::map< std::string, Component* >& result )
 {
 	// Saving the result
-	for( size_t i = 0; i < result.size(); i++ )
+	for( std::map< std::string, Component* >::iterator i = result.begin();
+		 i != result.end();
+		 i++ )
 		_solution.push_back( std::pair< std::string, int >
-						  (
-							  result.at( i )->get_name(),
-							  result.at( i )->get_value()
-						  )
-						);
+							 (
+								 i->first,
+								 i->second->get_value()
+							 )
+						   );
 }
 
 int CircuitSolution::size()

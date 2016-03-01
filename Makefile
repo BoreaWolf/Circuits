@@ -75,4 +75,11 @@ all: $(TARGETS)
 
 # Cleaning
 clean:
-	rm -f ./*.o simulation diagnoses
+	rm -f ./*.o
+	rm -f simulation
+	rm -f diagnoses
+
+instances_clean:
+	rm -f ./instances/init_conf/*.conf
+	rm -f ./instances/fail_gates/*.gates
+	rm -f ./instances/simulation/*.sim_sol

@@ -48,7 +48,7 @@ void OutputTerminal::calculate_cone()
 
 void OutputTerminal::calculate_value()
 {
-	if( get_value() == GATE_UNKNOWN_VALUE )
+	if( _value == GATE_UNKNOWN_VALUE )
 		set_value( _gate->get_value() );
 }
 
