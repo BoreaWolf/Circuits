@@ -47,12 +47,15 @@ void Circuit::solve( const std::string& initial_conf,
 					 const std::string& failing_gates )
 {
 	// TODO: Maybe I have to create a reset_circuit method?
+	fprintf( stdout, "Circuit::solve Solving '%s' with '%s' '%s'\n",
+				_name.c_str(),
+				initial_conf.c_str(),
+				failing_gates.c_str() );
 
 	// Loading the configuration that I have to solve for this circuit
 	load_initial_configuration( initial_conf );
 
 	// Solving the circuit
-	fprintf( stdout, "Circuit::solve Solving %s\n", _name.c_str() );
 
 	// I have to solve the same circuit two times: the first time without any
 	// errors on gates (no failures), the second time with the failures
@@ -131,6 +134,7 @@ void Circuit::print_output_cones( FILE* file )
 	{
 		fprintf( file, "\t" );
 		_outputs.at( i )->get_cone().print( _outputs.at( i )->get_name(), file );
+		fprintf( file, "\n" );
 	}
 }
 
@@ -148,6 +152,20 @@ void Circuit::print_cone( const std::string& gate_name, FILE* file )
 					->second
 					->get_cone()
 					.print( gate_name, file );
+
+		fprintf( file, "\n" );
+	}
+}
+
+void Circuit::print_solutions_for_diagnostic( FILE* file )
+{
+	for( size_t i = 0; i < _outputs.size(); i++ )
+	{
+		fprintf( file, "%s: ", _outputs.at( i )->get_name().c_str() );
+		_outputs.at( i )->get_cone().print( _outputs.at( i )->get_name(), file );
+		fprintf( file, " = %s\n",
+					_solution_comparison.get_comparison_value_of( 
+						_outputs.at( i )->get_name() ) );
 	}
 }
 

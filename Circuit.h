@@ -51,6 +51,7 @@ class Circuit
 		void print_output_values( FILE* = stdout );
 		void print_output_cones( FILE* = stdout );
 		void print_solutions( FILE* = stdout );
+		void print_solutions_for_diagnostic( FILE* = stdout );
 	
 	private:
 		// Methods

@@ -50,6 +50,17 @@ const char* CircuitComparison::get_comparison_value_at( int position )
 	return to_string( _comparison.at( position ).second );
 }
 
+ 
+const char* CircuitComparison::get_comparison_value_of( const std::string& gate )
+{
+	for( size_t i = 0; i < _comparison.size(); i++ )
+		if( _comparison.at( i ).first.compare( gate ) == 0 )
+			return get_comparison_value_at( i );
+
+	// This will never happen
+	return "Error";
+}
+
 void CircuitComparison::print( FILE* file )
 {
 	for( size_t i = 0; i < _comparison.size(); i++ )
@@ -57,4 +68,3 @@ void CircuitComparison::print( FILE* file )
 					_comparison.at( i ).first.c_str(),
 					to_string( _comparison.at( i ).second ) );
 }
- 

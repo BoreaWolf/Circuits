@@ -37,6 +37,7 @@ class CircuitComparison
 
 		void compare( CircuitSolution&, CircuitSolution& );
 		const char* get_comparison_value_at( int );
+		const char* get_comparison_value_of( const std::string& );
 
 		void print( FILE* = stdout );
 

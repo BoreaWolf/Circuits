@@ -32,5 +32,20 @@ diagnoses
 # Vim swap file
 .*.swp
 
+# Doc temp files
+**/*.aux
+**/*.fdb_latexmk
+**/*.fls
+**/*.glo
+**/*.idx
+**/*.ilg
+**/*.ind
+**/*.ist
+**/*.log
+**/*.mmd
+**/*.pdf
+**/*.tex
+**/*.toc
+
 # Instance files
 ./instances/*

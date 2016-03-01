@@ -1,5 +1,66 @@
 Simulazione
 ===========
 
-La prima parte del progetto riguarda la simulazione di un circuito digitale bla
-bla bla.
+In questa parte del progetto viene richiesto di simulare il funzionamento di un
+circuito logico reperendo le informazioni che lo descrivono da file esterni
+forniti dall'utente.
+
+Di seguito verranno mostrate le strutture dati usate per rappresentare il
+circuito e gli algoritmi adottati per poterlo risolvere.
+
+## Strutture Dati
+
+Per poter descrivere al meglio tutte le informazioni riguardanti un circuito,
+ovvero i suoi componenti interni e le loro caratteristiche, è stata creata una
+struttura gerarchica apposita
+(rappresentata in [](#fig:sim_class_gate_hierarchy)),
+nella quale viene sfruttata l'ereditarietà ed il polimorfismo.
+La classe padre, denominata *Component*, rappresenta un qualsiasi componente
+integrabile in un circuito ed è stata definita come class *virtual*. Da questa
+derivano le classi *InputTerminal*, *OutputTerminal* e una seconda classe
+*virtual* *LogicalGate* usata per rappresentare una generica porta logica. Da
+quest'ultima vengono poi implementate le diverse porte logiche inseribili in un
+circuito.
+
+Le strutture dati utilizzate nella classe *Circuit*
+(rappresentata in [](#fig:sim_class_circuit)),
+classe fulcro di questa parte, sono state create pensando molto anche al
+concetto del polimorfismo, dato che molti dei componenti introdotti in questo
+problema sono simili tra loro.  Per facilitare la classificazione e la
+risoluzione del problema, i diversi componenti sono stati memorizzati in tre
+differenti *vector*, rispettivamente un vector di *InputTerminal*, uno di
+*OutputTerminal* ed uno di *LogicalGate*.  Inoltre tutti gli elementi vengono
+indicizzati attraverso una
+<!--\emph{map<string,Component*>}-->
+in modo tale che ognuno di essi possa essere velocemente rintracciabile,
+indipendentemente dalla reale tipologia di elemento in questione[^CircuitMap].
+
+<!--
+% Basic data structure hierarchy
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Class_complete_2}
+	\caption{Struttura gerarchica delle classi}
+	\label{fig:sim_class_gate_hierarchy}
+\end{figure}
+
+\medskip
+
+% Circuit data structure
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Class_main}
+	\caption{Classe Circuit, Solution e Comparison}
+	\label{fig:sim_class_circuit}
+\end{figure}
+-->
+
+Anche nella rappresentazione di una soluzione, soluzione base e confronto tra
+soluzioni, è stata introdotta una semplice struttura
+
+[^CircuitMap]: Nonostante la *map* sia stata realizzata e sia funzionante, essa
+non viene utilizzata in quanto non c'è alcuna richiesta di indicizzazione e/o
+ricerca degli elementi all'interno del circuito. La suddivisione dei componenti
+stessi nei 3 *vector* precedentemente descritti è stata più che sufficiente per
+le richieste poste dal problema.
+

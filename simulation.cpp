@@ -53,18 +53,46 @@ int main( int argc, char ** argv )
 	ckt.solve( input_configuration, input_failure ); 
 
 	// Printing some results
-	ckt.print_output_values();
-	ckt.print_output_cones();
-	ckt.print_solutions();
+	//	ckt.print_output_values();
+	//	ckt.print_output_cones();
+	//	ckt.print_solutions();
+	//	ckt.print_solutions_for_diagnostic();
 
-	
+	// Creating the output file depending on the input files received
+	// Retrieving the file name
+	std::string solution_filename = 
+		input_configuration.substr(
+			input_configuration.find_last_of( "/" ) + 1 );
+
+	// Removing the current file extension
+	solution_filename = 
+		solution_filename.substr( 
+			0,
+			(
+				solution_filename.size() -
+				solution_filename.substr(
+					solution_filename.find_last_of( "." ) ).size()
+			) );
+
+	// Composing the final file name
+	solution_filename = 
+		StringConstants::PATH_SIM_SOLUTION +
+		solution_filename + 
+		StringConstants::EXT_SIM_SOLUTION;
+
+	// Writing to file
+	FILE* solution_file = fopen( solution_filename.c_str(), "w" );
+	ckt.print_solutions_for_diagnostic( solution_file );
+	fclose( solution_file );
 
 	// For every input file received I create one circuit instance
 	//	CircuitSet ckts( input_circuits );
 	//	ckts.solve();
 	//	fprintf( stdout, "Yeah: solved %d circuits!\n", ckts.size() );
 
-	fprintf( stdout, "Yeah! Solved circuit '%s'! (•̀ᴗ•́)൬༉\n", ckt.get_name().c_str() );
+	fprintf( stdout, "Yeah! Solved circuit '%s'! Results on '%s'! (•̀ᴗ•́)൬༉\n",
+				ckt.get_name().c_str(),
+				solution_filename.c_str() );
 	
 	return 0;
 }

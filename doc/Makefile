@@ -4,10 +4,10 @@
 
 # Targets
 CHAPTERS = introduction problem simulation diagnostic results
-TARGETS = relation $(CHAPTERS)
+TARGETS = report $(CHAPTERS)
 
 # Dependencies
-relation: relation.mmd introduction.mmd problem.mmd simulation.mmd \
+report: report.mmd introduction.mmd problem.mmd simulation.mmd \
 		diagnostic.mmd results.mmd
 
 # Everything all together
