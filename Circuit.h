@@ -41,10 +41,7 @@ class Circuit
 
 		const std::string& get_name(){ return _name; }
 
-		//	std::vector< int >& solve();
 		void compute( CircuitSolution& );
-		// TODO: Remove and remove the whole CircuitSet class
-		void solve();
 		void solve( const std::string&, const std::string& );
 
 		void print_cone( const std::string&, FILE* = stdout );

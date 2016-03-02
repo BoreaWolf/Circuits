@@ -22,6 +22,16 @@ derivano le classi *InputTerminal*, *OutputTerminal* ed una seconda classe
 quest'ultima vengono poi implementate le diverse porte logiche base inseribili
 in un circuito: *Not*, *And*, *Nand*, *Or*, *Nor*, *Xor* e *Xnor*.
 
+<!--
+% Basic data structure hierarchy
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Class_complete_2}
+	\caption{Struttura gerarchica delle classi}
+	\label{fig:sim_class_gate_hierarchy}
+\end{figure}
+-->
+
 Le strutture dati utilizzate nella classe *Circuit*
 (rappresentata in [](#fig:sim_class_circuit)),
 classe fulcro di questa parte, sono state create pensando molto anche al
@@ -38,16 +48,6 @@ terminali di ingresso alle varie porte logiche, garantendo un veloce e semplice
 accesso a tutti i componenti noti fino a quel momento.
 
 <!--
-% Basic data structure hierarchy
-\begin{figure}
-	\centering
-	\includegraphics[width=0.9\textwidth]{Class_complete_2}
-	\caption{Struttura gerarchica delle classi}
-	\label{fig:sim_class_gate_hierarchy}
-\end{figure}
-
-\medskip
-
 % Circuit data structure
 \begin{figure}
 	\centering
@@ -59,19 +59,71 @@ accesso a tutti i componenti noti fino a quel momento.
 
 Anche nella rappresentazione delle soluzioni (soluzione base e soluzione
 risultante dal confronto tra soluzioni) sono state introdotte delle semplici
-*map* così da poter lavorare più velocemente con i dati correnti.
-Nelle soluzioni vengono salvati solo i dati importanti per la soluzione stessa e
-non un riferimento al componente stesso: in entrambe le mappe la chiave è il
-nome del gate alla quale stiamo facendo riferimento, mentre i valori sono il
-valore di uscita ed il risultato qualitativo del confronto tra soluzioni, valori
-associati rispettivamente alla soluzione base ed alla soluzione di confronto.
-La scelta di appoggiarsi su una *map* invece di usare un
-*vector<pair<key,value>>* è principalmente dovuta all'efficienza delle *map*
+*map* così da poter lavorare più velocemente con i dati correnti.  Nelle
+soluzioni vengono salvati solo i dati importanti per la soluzione stessa e non
+il riferimento al componente stesso: in entrambe le mappe la chiave è il nome
+del gate alla quale stiamo facendo riferimento, mentre i valori sono il valore
+di uscita calcolato ed il risultato qualitativo del confronto di un gate tra
+diverse soluzioni, valori associati rispettivamente alla soluzione base ed alla
+soluzione di confronto. La scelta di appoggiarsi su una *map* invece di usare
+un *vector<pair<key,value>>* è principalmente dovuta all'efficienza delle *map*
 nella ricerca degli elementi al loro interno: complessità computazionale *O(1)*
 a confronto di una complessità *O(n)*.
 
 ## Algoritmo risolvente
 
-## Accorgimenti
+L'algoritmo adottato per simulare il circuito è semplice ed intuitivo: una volta
+caricati tutti gli elementi e classificati in base alla loro tipologia come
+descritto in precedenza, si passano in rassegna tutte le porte logiche del
+circuito e si aggiorna il loro valore d'uscita, rispettando l'ordine in cui sono
+stati letti così da essere certi di conoscere tutti i valori dei terminali di
+input necessari per calcolare la loro uscita. Una volta processate tutte le
+porte logiche, viene creata la soluzione relativa alla corrente simulazione,
+salvando alcune informazioni dalla *map* dei componenti del circuito stesso.
 
+<!--
+% Algorithm code
+\lstset{
+	language=C,
+	caption={Calcolo dei valori delle porte logiche},
+	label={code:sim_solve_compute}
+}
+
+\begin{lstlisting}
+void Circuit::solve( const std::string& initial_conf,
+					 const std::string& failing_gates )
+{
+	load_initial_configuration( initial_conf );
+	compute( _solution_correct );
+	load_failing_gates( failing_gates );
+	compute( _solution_failure );
+	_solution_comparison.compare( _solution_correct, _solution_failure );
+}
+
+void Circuit::compute( CircuitSolution& result )
+{
+	for( size_t i = 0; i < _logical_gates.size(); i++ )
+		_logical_gates.at( i )->calculate_value();
+
+	result.save( _components );
+}
+\end{lstlisting}
+-->
+
+Nel nostro caso dobbiamo simulare lo stesso circuito due volte, caso teorico e
+caso reale con porte fallate, così da poter poi confrontare qualitativamente le
+due soluzioni e poter fornire i dati richiesti per la parte diagnostica.
+
+## Accorgimenti e piccoli miglioramenti
+
+L'implementazione di tutte le porte logiche utilizza gli operatori bitwise
+offerti dal linguaggio.
+Per le porte logiche *And* ed *Or* è stata introdotta anche la 
+*Short Circuit Evaluation*: nel caso in cui un valore di input fosse
+rispettivamente 0 o 1, la computazione del valore finale viene interrotta e il
+valore corrente viene salvato come valore d'uscita della porta.  Questo
+miglioramento non alleggerisce di molto il carico di lavoro del programma
+complessivo in quanto il numero di elementi di input di una porta logica non è
+elevato (il massimo riscontrato nelle istanze fornite è stato prossimo alla
+decina), ma è comunque una aggiunta che mi sembrava doveroso fare.
 

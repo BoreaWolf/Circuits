@@ -7,7 +7,7 @@
  *
  */
 
-#include "./CircuitSet.h"
+#include "Circuit.h"
 #include "./constants.h"
 
 #include <stdio.h>
@@ -17,7 +17,6 @@
 int main( int argc, char ** argv )
 {
 	// File names
-	//	std::vector< std::string > input_circuits;
 	std::string input_circuit, input_configuration, input_failure;
 
 	// Some input from the user
@@ -30,7 +29,6 @@ int main( int argc, char ** argv )
 		 *  - argv[ 2 ]: input configuration
 		 *  - argv[ 3 ]: input failure gates
 		 */
-		//	input_circuits.push_back( argv[ 1 ] );
 		input_circuit = argv[ 1 ];
 		input_configuration = argv[ 2 ];
 		input_failure = argv[ 3 ];
@@ -39,12 +37,10 @@ int main( int argc, char ** argv )
 	{
 		// If the user doesn't specifies any input file, I'll read all the
 		// instances and solve them
-		//	input_circuits.push_back( StringConstants::PATH_CIRCUITS + "C17.txt" );
-		//	input_circuits.push_back( StringConstants::PATH_CIRCUITS + "C432.txt" );
 		input_circuit = StringConstants::PATH_CIRCUITS + "C17.txt";
+		//	input_circuit = StringConstants::PATH_CIRCUITS + "C432.txt";
 		input_configuration = StringConstants::FILE_INPUT_CONFIGURATION;
 		input_failure = StringConstants::FILE_FAILING_GATES;
-		//	input_circuit = StringConstants::PATH_CIRCUITS + "C432.txt";
 	}
 
 	// Creating the circuit and then passing to it the initial configuration and
@@ -84,11 +80,6 @@ int main( int argc, char ** argv )
 	FILE* solution_file = fopen( solution_filename.c_str(), "w" );
 	ckt.print_solutions_for_diagnostic( solution_file );
 	fclose( solution_file );
-
-	// For every input file received I create one circuit instance
-	//	CircuitSet ckts( input_circuits );
-	//	ckts.solve();
-	//	fprintf( stdout, "Yeah: solved %d circuits!\n", ckts.size() );
 
 	fprintf( stdout, "Yeah! Solved circuit '%s'! Results on '%s'! (•̀ᴗ•́)൬༉\n",
 				ckt.get_name().c_str(),

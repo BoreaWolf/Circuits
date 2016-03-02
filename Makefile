@@ -13,8 +13,8 @@ TARGETS = simulation diagnoses
 GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
 		nor_gate.o not_gate.o output_terminal.o or_gate.o xnor_gate.o \
 		xor_gate.o
-OBJ = circuit.o circuit_comparison.o circuit_set.o circuit_solution.o \
-	  component.o constants.o $(GATES)
+OBJ = circuit.o circuit_comparison.o circuit_solution.o component.o \
+	  constants.o $(GATES)
 
 HEADERS = GateStatus.h
 
@@ -28,9 +28,6 @@ simulation:		simulation.cpp $(OBJ) $(HEADERS)
 # Intermediate objects
 circuit.o:		Circuit.h Circuit.cpp
 	$(CCC) $(COPT) -c Circuit.cpp -o circuit.o
-
-circuit_set.o:	CircuitSet.h CircuitSet.cpp
-	$(CCC) $(COPT) -c CircuitSet.cpp -o circuit_set.o
 
 component.o:	Component.h Component.cpp
 	$(CCC) $(COPT) -c Component.cpp -o component.o

@@ -40,9 +40,6 @@ Circuit::~Circuit()
 #endif
 }
 
-void Circuit::solve()
-{	}
-
 void Circuit::solve( const std::string& initial_conf,
 					 const std::string& failing_gates )
 {
