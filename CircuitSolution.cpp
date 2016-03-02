@@ -10,7 +10,7 @@
 
 CircuitSolution::CircuitSolution()
 {
-	_solution = std::vector< std::pair< std::string, int > >();
+	_solution = std::map< std::string, int >();
 }
 
 CircuitSolution::~CircuitSolution()
@@ -22,12 +22,12 @@ void CircuitSolution::save( std::map< std::string, Component* >& result )
 	for( std::map< std::string, Component* >::iterator i = result.begin();
 		 i != result.end();
 		 i++ )
-		_solution.push_back( std::pair< std::string, int >
-							 (
-								 i->first,
-								 i->second->get_value()
-							 )
-						   );
+		_solution.insert( std::pair< std::string, int >
+						  (
+						      i->first,
+						      i->second->get_value()
+						  )
+						);
 }
 
 int CircuitSolution::size()
@@ -35,30 +35,28 @@ int CircuitSolution::size()
 	return _solution.size();
 }
 
-std::string& CircuitSolution::get_gate_name_at( int position )
+std::map< std::string, int >::iterator CircuitSolution::begin()
 {
-	return _solution.at( position ).first;
+	return _solution.begin();
 }
 
-int CircuitSolution::get_gate_value_at( int position )
+std::map< std::string, int >::iterator CircuitSolution::end()
 {
-	return _solution.at( position ).second;
+	return _solution.end();
 }
 
-int CircuitSolution::get_gate_value( std::string& gate_name )
+int CircuitSolution::get_gate_value_of( const std::string& gate_name )
 {
-	for( size_t i = 0; i < _solution.size(); i++ )
-		if( _solution.at( i ).first.compare( gate_name ) == 0 )
-			return _solution.at( i ).second;
-
-	return -1;
+	return _solution.find( gate_name )->second;
 }
 
 void CircuitSolution::print( FILE* file )
 {
-	for( size_t i = 0; i < _solution.size(); i++ )
+	for( std::map< std::string, int >::iterator i = _solution.begin();
+		 i != _solution.end();
+		 i++ )
 		fprintf( file, "\tGate %s = %d\n",
-					_solution.at( i ).first.c_str(),
-					_solution.at( i ).second );
+					i->first.c_str(),
+					i->second );
 }
 

@@ -14,7 +14,6 @@
 
 #include <map>
 #include <string>
-#include <vector>
 
 class CircuitSolution
 {
@@ -25,15 +24,15 @@ class CircuitSolution
 		void save( std::map< std::string, Component* >& );
 	
 		int size();
+		std::map< std::string, int >::iterator begin();
+		std::map< std::string, int >::iterator end();
 
-		std::string& get_gate_name_at( int );
-		int get_gate_value_at( int );
-		int get_gate_value( std::string& );
+		int get_gate_value_of( const std::string& );
 
 		void print( FILE* = stdout );
 		
 	private:
-		std::vector< std::pair< std::string, int > > _solution;
+		std::map< std::string, int > _solution;
 };
 
 #endif

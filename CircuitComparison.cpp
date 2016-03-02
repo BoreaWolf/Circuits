@@ -10,15 +10,15 @@
 
 CircuitComparison::CircuitComparison()
 {
-	_comparison = std::vector< std::pair< std::string, CircuitComparisonValues > >();
+	_comparison = std::map< std::string, CircuitComparisonValues >();
 }
 
 
 CircuitComparison::~CircuitComparison()
 {	}
 
-void CircuitComparison::compare( CircuitSolution& first,
-								 CircuitSolution& second )
+void CircuitComparison::compare( CircuitSolution& sol_one,
+								 CircuitSolution& sol_two )
 {
 	// I assume that the two solutions are compatible:
 	//  - same length
@@ -26,45 +26,39 @@ void CircuitComparison::compare( CircuitSolution& first,
 	
 	CircuitComparisonValues temp_result;
 
-	// TODO: Add some integrity checks, at least I should be sure to check the
-	// value of the same gate
-	for( int i = 0; i < first.size(); i++ )
+	for( std::map< std::string, int >::iterator i = sol_one.begin();
+		 i != sol_one.end();
+		 i++ )
 	{
-		if( first.get_gate_value_at( i ) == second.get_gate_value_at( i ) )
+		if( sol_one.get_gate_value_of( i->first ) == 
+			sol_two.get_gate_value_of( i->first ) )
 			temp_result = CircuitComparisonValues::OK;
 		else
 			temp_result = CircuitComparisonValues::KO;
 
-		_comparison.push_back( 
+		// Inserting the result in the map
+		_comparison.insert( 
 			std::pair< std::string, CircuitComparisonValues >
 				(
-				    first.get_gate_name_at( i ),
+					i->first,
 				    temp_result
 				)
 			 );
 	}
 }
 
-const char* CircuitComparison::get_comparison_value_at( int position )
-{
-	return to_string( _comparison.at( position ).second );
-}
-
- 
 const char* CircuitComparison::get_comparison_value_of( const std::string& gate )
 {
-	for( size_t i = 0; i < _comparison.size(); i++ )
-		if( _comparison.at( i ).first.compare( gate ) == 0 )
-			return get_comparison_value_at( i );
-
-	// This will never happen
-	return "Error";
+	return to_string( _comparison.find( gate )->second );
 }
 
 void CircuitComparison::print( FILE* file )
 {
 	for( size_t i = 0; i < _comparison.size(); i++ )
+	for( std::map< std::string, CircuitComparisonValues >::iterator i = _comparison.begin();
+		 i != _comparison.end();
+		 i++ )
 		fprintf( file, "\tGate %s = %s\n",
-					_comparison.at( i ).first.c_str(),
-					to_string( _comparison.at( i ).second ) );
+					i->first.c_str(),
+					to_string( i->second ) );
 }

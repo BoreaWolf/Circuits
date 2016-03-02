@@ -11,6 +11,7 @@
 
 #include "./CircuitSolution.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -36,13 +37,12 @@ class CircuitComparison
 		~CircuitComparison();
 
 		void compare( CircuitSolution&, CircuitSolution& );
-		const char* get_comparison_value_at( int );
 		const char* get_comparison_value_of( const std::string& );
 
 		void print( FILE* = stdout );
 
 	private:
-		std::vector< std::pair< std::string, CircuitComparisonValues > > _comparison;
+		std::map< std::string, CircuitComparisonValues > _comparison;
 };
 
 #endif

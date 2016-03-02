@@ -99,12 +99,14 @@ void Circuit::compute( CircuitSolution& result )
 void Circuit::print_solutions( FILE* file )
 {
 	fprintf( file, "Circuit::print_solutions Correct/Failure => Result:\n" );
-	for( int i = 0; i < _solution_correct.size(); i++ )
+	for( std::map< std::string, int >::iterator i = _solution_correct.begin();
+		 i != _solution_correct.end();
+		 i++ )
 		fprintf( file, "\tGate %s: %d/%d => %s\n",
-				 _solution_correct.get_gate_name_at( i ).c_str(),
-				 _solution_correct.get_gate_value_at( i ),
-				 _solution_failure.get_gate_value_at( i ),
-				 _solution_comparison.get_comparison_value_at( i ) );
+				 i->first.c_str(),
+				 i->second,
+				 _solution_failure.get_gate_value_of( i->first ),
+				 _solution_comparison.get_comparison_value_of( i->first ) );
 
 	//	fprintf( file, "\tCorrect:\n" );
 	//	_solution_correct.print( file );
@@ -122,8 +124,8 @@ void Circuit::print_output_values( FILE* file )
 	for( size_t i = 0; i < _outputs.size(); i++ )
 		fprintf( file, "\tGate %s: %d/%d\n",
 			_outputs.at( i )->get_name().c_str(),
-			_solution_correct.get_gate_value( _outputs.at( i )->get_name() ),
-			_solution_failure.get_gate_value( _outputs.at( i )->get_name() ) );
+			_solution_correct.get_gate_value_of( _outputs.at( i )->get_name() ),
+			_solution_failure.get_gate_value_of( _outputs.at( i )->get_name() ) );
 
 }
 

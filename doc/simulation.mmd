@@ -16,24 +16,26 @@ struttura gerarchica apposita
 (rappresentata in [](#fig:sim_class_gate_hierarchy)),
 nella quale viene sfruttata l'ereditarietà ed il polimorfismo.
 La classe padre, denominata *Component*, rappresenta un qualsiasi componente
-integrabile in un circuito ed è stata definita come class *virtual*. Da questa
-derivano le classi *InputTerminal*, *OutputTerminal* e una seconda classe
+integrabile in un circuito ed è stata definita come classe *virtual*. Da questa
+derivano le classi *InputTerminal*, *OutputTerminal* ed una seconda classe
 *virtual* *LogicalGate* usata per rappresentare una generica porta logica. Da
-quest'ultima vengono poi implementate le diverse porte logiche inseribili in un
-circuito.
+quest'ultima vengono poi implementate le diverse porte logiche base inseribili
+in un circuito: *Not*, *And*, *Nand*, *Or*, *Nor*, *Xor* e *Xnor*.
 
 Le strutture dati utilizzate nella classe *Circuit*
 (rappresentata in [](#fig:sim_class_circuit)),
 classe fulcro di questa parte, sono state create pensando molto anche al
 concetto del polimorfismo, dato che molti dei componenti introdotti in questo
-problema sono simili tra loro.  Per facilitare la classificazione e la
-risoluzione del problema, i diversi componenti sono stati memorizzati in tre
-differenti *vector*, rispettivamente un vector di *InputTerminal*, uno di
-*OutputTerminal* ed uno di *LogicalGate*.  Inoltre tutti gli elementi vengono
-indicizzati attraverso una
+problema sono simili tra loro. Per facilitare la risoluzione del problema, i
+diversi componenti sono stati memorizzati in tre differenti *vector*,
+rispettivamente un vector di *InputTerminal*, uno di *OutputTerminal* ed uno di
+*LogicalGate*.  Inoltre tutti gli elementi vengono indicizzati attraverso una
 <!--\emph{map<string,Component*>}-->
 in modo tale che ognuno di essi possa essere velocemente rintracciabile,
-indipendentemente dalla reale tipologia di elemento in questione[^CircuitMap].
+indipendentemente dalla reale tipologia di elemento in questione: questa
+struttura è stata molto utile nella fase di lettura dei dati ed assegnazione dei
+terminali di ingresso alle varie porte logiche, garantendo un veloce e semplice
+accesso a tutti i componenti noti fino a quel momento.
 
 <!--
 % Basic data structure hierarchy
@@ -55,12 +57,21 @@ indipendentemente dalla reale tipologia di elemento in questione[^CircuitMap].
 \end{figure}
 -->
 
-Anche nella rappresentazione di una soluzione, soluzione base e confronto tra
-soluzioni, è stata introdotta una semplice struttura
+Anche nella rappresentazione delle soluzioni (soluzione base e soluzione
+risultante dal confronto tra soluzioni) sono state introdotte delle semplici
+*map* così da poter lavorare più velocemente con i dati correnti.
+Nelle soluzioni vengono salvati solo i dati importanti per la soluzione stessa e
+non un riferimento al componente stesso: in entrambe le mappe la chiave è il
+nome del gate alla quale stiamo facendo riferimento, mentre i valori sono il
+valore di uscita ed il risultato qualitativo del confronto tra soluzioni, valori
+associati rispettivamente alla soluzione base ed alla soluzione di confronto.
+La scelta di appoggiarsi su una *map* invece di usare un
+*vector<pair<key,value>>* è principalmente dovuta all'efficienza delle *map*
+nella ricerca degli elementi al loro interno: complessità computazionale *O(1)*
+a confronto di una complessità *O(n)*.
 
-[^CircuitMap]: Nonostante la *map* sia stata realizzata e sia funzionante, essa
-non viene utilizzata in quanto non c'è alcuna richiesta di indicizzazione e/o
-ricerca degli elementi all'interno del circuito. La suddivisione dei componenti
-stessi nei 3 *vector* precedentemente descritti è stata più che sufficiente per
-le richieste poste dal problema.
+## Algoritmo risolvente
+
+## Accorgimenti
+
 
