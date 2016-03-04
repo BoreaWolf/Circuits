@@ -20,6 +20,7 @@ class StringConstants
 
 		static const std::string FILE_INPUT_CONFIGURATION;
 		static const std::string FILE_FAILING_GATES;
+		static const std::string FILE_INPUT_DATA_DIAGNOSTIC;
 
 		static const std::string EXT_SIM_SOLUTION;
 };

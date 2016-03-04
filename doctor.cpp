@@ -8,6 +8,7 @@
  */
 
 #include "./constants.h"
+#include "./Diagnostic.h"
 
 #include <stdio.h>
 #include <string>
@@ -33,9 +34,13 @@ int main( int argc, char ** argv )
 	{
 		// If the user doesn't specifies any input file, I'll read all the
 		// instances and solve them
-		input_data = StringConstants::PATH_CIRCUITS + "C17.txt";
-		input_diagnostic = StringConstants::FILE_INPUT_CONFIGURATION;
+		input_data = StringConstants::FILE_INPUT_DATA_DIAGNOSTIC;
+		// Create an enum to define diagnostic types
+		//	input_diagnostic = StringConstants::FILE_INPUT_CONFIGURATION;
 	}
+
+	Diagnostic dia( input_data, input_diagnostic );
+	dia.solve();
 
 	fprintf( stdout, "Yeah! Diagnostics done! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n" );
 	

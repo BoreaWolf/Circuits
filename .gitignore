@@ -27,7 +27,7 @@
 *.out
 *.app
 simulation
-diagnoses
+doctor
 
 # Vim swap file
 .*.swp

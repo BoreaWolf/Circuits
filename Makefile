@@ -13,18 +13,20 @@ TARGETS = simulation diagnoses
 GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
 		nor_gate.o not_gate.o output_terminal.o or_gate.o xnor_gate.o \
 		xor_gate.o
-OBJ = circuit.o circuit_comparison.o circuit_solution.o component.o \
+OBJ_SIM = circuit.o circuit_comparison.o circuit_solution.o component.o \
 	  constants.o $(GATES)
+OBJ_DIA = constants.o diagnostic.o
 
 HEADERS = GateStatus.h
 
 # Dependencies
 # Main programs
-simulation:		simulation.cpp $(OBJ) $(HEADERS)
-	$(CCC) $(COPT) $(OBJ) simulation.cpp -o simulation
-#	diagnoses:		diagnoses.cpp
-#		$(CCC) $(COPT) diagnoses.cpp -o diagnoses
+simulation:		simulation.cpp $(OBJ_SIM) $(HEADERS)
+	$(CCC) $(COPT) $(OBJ_SIM) simulation.cpp -o simulation
+doctor:		doctor.cpp $(OBJ_DIA)
+	$(CCC) $(COPT) $(OBJ_DIA) doctor.cpp -o doctor 
 
+# Simulation related
 # Intermediate objects
 circuit.o:		Circuit.h Circuit.cpp
 	$(CCC) $(COPT) -c Circuit.cpp -o circuit.o
@@ -67,6 +69,10 @@ xor_gate.o:		XorGate.h XorGate.cpp
 gate_cone.o:	GateCone.h GateCone.cpp
 	$(CCC) $(COPT) -c GateCone.cpp -o gate_cone.o
 
+# Diagnostic related
+diagnostic.o:	Diagnostic.h Diagnostic.cpp
+	$(CCC) $(COPT) -c Diagnostic.cpp -o diagnostic.o
+
 # Everything all together
 all: $(TARGETS)
 
@@ -74,7 +80,7 @@ all: $(TARGETS)
 clean:
 	rm -f ./*.o
 	rm -f simulation
-	rm -f diagnoses
+	rm -f doctor
 
 instances_clean:
 	rm -f ./instances/init_conf/*.conf
