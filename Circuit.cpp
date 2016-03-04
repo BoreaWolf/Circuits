@@ -44,8 +44,11 @@ void Circuit::solve( const std::string& initial_conf,
 					 const std::string& failing_gates )
 {
 	// TODO: Maybe I have to create a reset_circuit method?
-	fprintf( stdout, "Circuit::solve Solving '%s' with '%s' '%s'\n",
+	fprintf( stdout, "Circuit::solve Solving '%s': %lu Input %lu Output %lu LogicalGates with '%s' '%s'\n",
 				_name.c_str(),
+				_inputs.size(),
+				_outputs.size(),
+				_logical_gates.size(),
 				initial_conf.c_str(),
 				failing_gates.c_str() );
 

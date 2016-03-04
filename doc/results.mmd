@@ -1,0 +1,39 @@
+Test e Risultati
+================
+
+Per evitare che l'utente debba creare e passare i file necessari per risolvere
+un problema associato ad un circuito, sono stati implementati alcuni script
+automatici per la generazione dei dati necessari alla simulazione e per la loro
+successiva esecuzione.
+
+<!-- \todo{Per la parte di simulazione bla bla, mentre per la parte diagnostica
+	bla bla?} -->
+
+Uno script (*create_instance*), ricevendo in ingresso il file descrittivo di un
+circuito, genera il file relativo alla configurazione iniziale dei terminali
+d'ingresso ed il file nel quale vengono indicate le porte con dei guasti; un
+secondo script (*solve_circuit*) lancia il programma di simulazione su un
+circuito fornito in ingresso, dopo aver generato i dati ad esso necessari
+utilizzando lo script precedente; infine un ultimo script (*solve_all_circuit*)
+lancia il secondo script una volta per istanza nota.
+
+## Simulazione
+
+Tutti i circuiti che sono state forniti con il problema sono stati testati
+diverse volte con istanze generate casualmente e, come si era presupposto in
+precedenza, all'aumentare del numero di componenti presenti in un circuito
+aumenta il tempo d'esecuzione del programma in modo lineare
+([](#fig:test_tempi_simulazione)).
+
+<!--
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{simulation_test}
+	\caption{Tempi d'esecuzione simulazione}
+	\label{fig:test_tempi_simulazione}
+\end{figure}
+-->
+
+
+## Diagnostica
+

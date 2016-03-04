@@ -2,7 +2,7 @@
  * Author: Riccardo Orizio (R)
  * Date: 23 February 2016
  *
- * Description: Main of the Circuits problem
+ * Description: Main of the Simulation Circuits problem
  * A project of the class of Algorithms and Data Structures
  *
  */
@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <string>
-#include <vector>
 
 int main( int argc, char ** argv )
 {

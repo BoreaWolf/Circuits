@@ -76,8 +76,8 @@ L'algoritmo adottato per simulare il circuito è semplice ed intuitivo: una volt
 caricati tutti gli elementi e classificati in base alla loro tipologia come
 descritto in precedenza, si passano in rassegna tutte le porte logiche del
 circuito e si aggiorna il loro valore d'uscita, rispettando l'ordine in cui sono
-stati letti così da essere certi di conoscere tutti i valori dei terminali di
-input necessari per calcolare la loro uscita. Una volta processate tutte le
+state lette così da essere certi di conoscere tutti i valori dei terminali di
+input necessari per calcolare le loro uscite. Una volta processate tutte le
 porte logiche, viene creata la soluzione relativa alla corrente simulazione,
 salvando alcune informazioni dalla *map* dei componenti del circuito stesso.
 
@@ -114,6 +114,16 @@ Nel nostro caso dobbiamo simulare lo stesso circuito due volte, caso teorico e
 caso reale con porte fallate, così da poter poi confrontare qualitativamente le
 due soluzioni e poter fornire i dati richiesti per la parte diagnostica.
 
+Come si può notare dal codice [](#code:sim_solve_compute), l'algoritmo
+utilizzato è basato su un singolo ciclo su tutte le porte logiche del circuito,
+all'interno del quale si va a computare il loro valore. Quest'ultimo viene
+calcolato attraverso un ciclo sui componenti d'input della porta in questione:
+dato il ridotto numero di componenti che ogni porta logica può avere
+[^InputPorteLogiche], dedurre una complessità computazionale quadratica per
+questa procedura mi sembra eccessivo, anzi si presuppone una complessità quasi
+lineare, data anche la semplicità delle operazioni da svolgere per ogni porta
+logica.
+
 ## Accorgimenti e piccoli miglioramenti
 
 L'implementazione di tutte le porte logiche utilizza gli operatori bitwise
@@ -126,4 +136,8 @@ miglioramento non alleggerisce di molto il carico di lavoro del programma
 complessivo in quanto il numero di elementi di input di una porta logica non è
 elevato (il massimo riscontrato nelle istanze fornite è stato prossimo alla
 decina), ma è comunque una aggiunta che mi sembrava doveroso fare.
+
+[^InputPorteLogiche]: Il numero ridotto è stato constatato visionando le istanze
+fornite, nulla vieta avere anche porte logiche con un numero elevato di
+ingressi.
 
