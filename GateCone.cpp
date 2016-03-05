@@ -41,6 +41,28 @@ void GateCone::join( GateCone& cone )
 	_cone.insert( cone.begin(), cone.end() );
 }
 
+bool GateCone::intersection( GateCone& cone )
+{
+	// Passing every element of the argument cone and checking if I find it in
+	// the current one
+	for( std::set< std::string >::iterator it = cone.begin();
+		 it != cone.end();
+		 it++ )
+		if( _cone.find( *it ) != _cone.end() )
+		{
+			fprintf( stdout, "GateCone::intersection found '%s' between ",
+						it->c_str() );
+			print( "" );
+			fprintf( stdout, " " );
+			cone.print( "" );
+			fprintf( stdout, "\n" );
+			return true;
+		}
+
+	// No intersections have been found between the two cones
+	return false;
+}
+
 void GateCone::print( const std::string& component_name, FILE* file )
 {
 	// Instead of writing a sort of message error when I find an empty cone

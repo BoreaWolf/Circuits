@@ -7,7 +7,7 @@ CCC = clang++
 COPT = -std=c++11
 
 # Targets
-TARGETS = simulation diagnoses
+TARGETS = simulation doctor 
 
 # Objects
 GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
@@ -15,15 +15,16 @@ GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
 		xor_gate.o
 OBJ_SIM = circuit.o circuit_comparison.o circuit_solution.o component.o \
 	  constants.o $(GATES)
-OBJ_DIA = constants.o diagnostic.o gate_cone.o
+OBJ_DIA = constants.o diagnostic.o diagnostic_solution.o gate_cone.o
 
-HEADERS = GateStatus.h
+HEADERS_SIM = GateStatus.h
+HEADERS_DIA = GateValue.h
 
 # Dependencies
 # Main programs
-simulation:		simulation.cpp $(OBJ_SIM) $(HEADERS)
+simulation:		simulation.cpp $(OBJ_SIM) $(HEADERS_SIM)
 	$(CCC) $(COPT) $(OBJ_SIM) simulation.cpp -o simulation
-doctor:		doctor.cpp $(OBJ_DIA)
+doctor:		doctor.cpp $(OBJ_DIA) $(HEADERS_DIA)
 	$(CCC) $(COPT) $(OBJ_DIA) doctor.cpp -o doctor 
 
 # Simulation related
@@ -72,6 +73,9 @@ gate_cone.o:	GateCone.h GateCone.cpp
 # Diagnostic related
 diagnostic.o:	Diagnostic.h Diagnostic.cpp
 	$(CCC) $(COPT) -c Diagnostic.cpp -o diagnostic.o
+
+diagnostic_solution.o:	DiagnosticSolution.h DiagnosticSolution.cpp
+	$(CCC) $(COPT) -c DiagnosticSolution.cpp -o diagnostic_solution.o
 
 # Everything all together
 all: $(TARGETS)

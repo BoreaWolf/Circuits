@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
 		// If the user doesn't specifies any input file, I'll read all the
 		// instances and solve them
 		input_data = StringConstants::FILE_INPUT_DATA_DIAGNOSTIC;
-		input_diagnostic = DiagnosesType::ALL_MASKING;
+		input_diagnostic = DiagnosesType::ALL_DIAGNOSES;
 		// Create an enum to define diagnostic types
 	}
 

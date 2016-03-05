@@ -17,8 +17,10 @@
 Diagnostic::Diagnostic( const std::string& input_filename )
 {
 	_name = input_filename;
-	_cones = std::map< std::string, GateCone >();
-	_values = std::map< std::string, GateValue >();
+	_cones = cone_map();
+	_values = value_map();
+	_ok_gates = std::vector< std::string >();
+	_ko_gates = std::vector< std::string >();
 
 	load( _name );
 
@@ -46,6 +48,7 @@ void Diagnostic::solve( DiagnosesType diagnoses_type )
 	switch( diagnoses_type )
 	{
 		case DiagnosesType::ALL_DIAGNOSES:
+			all_diagnoses();
 			break;
 		case DiagnosesType::NO_MASKING:
 			break;
@@ -58,15 +61,66 @@ void Diagnostic::solve( DiagnosesType diagnoses_type )
 	}
 }
 
+void Diagnostic::all_diagnoses()
+{
+	value_map* current_subset;
+	for( int i = 0; i < get_ok_subset_number(); i++ )
+	{
+		current_subset = get_ith_ok_subset( i );
+
+		// Checking if the current subset needs to be processed:
+		// if the cone of the OK values does intersecate with a cone of a KO
+		// value then it needs to be processed
+		if( check_cone_interesection( current_subset ) )
+		{
+			for( value_map::iterator it = current_subset->begin();
+				 it != current_subset->end();
+				 it++ )
+			{
+#ifdef DEBUG
+				fprintf( stdout, "%s: %s %s => ",
+							it->first.c_str(),
+							to_string( _values.find( it->first )->second ),
+							to_string( it->second ) );
+#endif
+				// Checking if the value associated to the current subset of every
+				// gate matches with the input data, if so I'll set it to OKM,
+				// otherwise I'll keep it as it is in the input
+				if( it->second == _values.find( it->first )->second )
+					it->second = GateValue::OKM;
+				else
+					it->second = _values.find( it->first )->second;
+
+#ifdef DEBUG
+				fprintf( stdout, "%s\n", to_string( it->second ) );
+#endif
+			}
+
+			// Joining the solution with the current calculated
+			//	_solution.join( diagnoses_one_config( current_subset ) );
+		}
+
+	}
+	fprintf( stdout, "\n" );
+	
+}
+
+void Diagnostic::diagnoses_one_config( value_map* current_values )
+{
+}
+
+void Diagnostic::diagnoses_one_choice()
+{
+}
+
 // Private methods
 void Diagnostic::load( const std::string& input_filename )
 {
-
 	// Opening the file and reading the cones
 	std::ifstream input_file( input_filename, std::ifstream::in );
 	if( input_file == NULL )
 	{
-		fprintf( stdout, "Circuit::load: error in opening file '%s'\n",
+		fprintf( stdout, "Diagnostic::load: error in opening file '%s'\n",
 					input_filename.c_str() );
 		exit( 1 );
 	}
@@ -136,12 +190,21 @@ void Diagnostic::load( const std::string& input_filename )
 						)
 				);
 
+				// Saving information about the value in both a map and in two
+				// vectors
+				// TODO Really needed?
 				GateValue value_temp;
 
 				if( regex_results.str( 4 ).compare( "OK" ) == 0 )
+				{
 					value_temp = GateValue::OK;
+					_ok_gates.push_back( regex_results.str( 1 ) );
+				}
 				else if( regex_results.str( 4 ).compare( "KO" ) == 0 )
+				{
 					value_temp = GateValue::KO;
+					_ko_gates.push_back( regex_results.str( 1 ) );
+				}
 
 				// Adding the value
 				_values.insert(
@@ -163,7 +226,7 @@ void Diagnostic::load( const std::string& input_filename )
 
 #ifdef DEBUG
 		fprintf( stdout, "Cones Map size: %lu\n", _cones.size() );
-		for( std::map< std::string, GateCone >::iterator i = _cones.begin();
+		for( cone_map::iterator i = _cones.begin();
 			 i != _cones.end();
 			 i++ )
 		{
@@ -174,7 +237,7 @@ void Diagnostic::load( const std::string& input_filename )
 		fflush( stdout );
 
 		fprintf( stdout, "Values Map size: %lu\n", _values.size() );
-		for( std::map< std::string, GateValue >::iterator i = _values.begin();
+		for( value_map::iterator i = _values.begin();
 			 i != _values.end();
 			 i++ )
 			fprintf( stdout, "\t%s(%s)\n",
@@ -185,4 +248,87 @@ void Diagnostic::load( const std::string& input_filename )
 
 	// Closing the file
 	input_file.close();
+}
+
+value_map* Diagnostic::get_ith_ok_subset( int i )
+{
+	value_map* result = new std::map< std::string, GateValue >();
+
+	// Creating the map having the gate name as key and OK/KO as value,
+	// translating the int parameter in its corresonding binary value and
+	// creating the subset with that information:
+	//  - 0 => OK
+	//  - 1 => KO
+	// It doesn't change much if OK = 0 | 1, at the end every set is going to be
+	// checked
+	
+	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %d: ", i );
+
+	for( value_map::iterator it = _values.begin();
+		 it != _values.end();
+		 it++ )
+	{
+		result->insert(
+			std::pair< std::string, GateValue >
+			(
+				it->first,
+				static_cast<GateValue>( i%2 )
+			)
+		);
+
+		fprintf( stdout, "%d(%s) ", i%2, to_string( static_cast< GateValue >( i%2 ) ) );
+		// Going for the next part of the binary number
+		i /= 2;
+	}
+
+	fprintf( stdout, "\n" );
+
+	return result;
+}
+
+int Diagnostic::get_ok_subset_number()
+{
+	fprintf( stdout, "Diagnostic::get_ok_subset_number %d having %lu OK\n",
+				( _ok_gates.size() == 0 ? 0 : (int) pow( 2, _ok_gates.size() ) ),
+				_ok_gates.size() );
+
+	return (int)( _ok_gates.size() == 0 ? 0 : ( pow( 2, _ok_gates.size() ) ) );
+}
+
+bool Diagnostic::check_cone_interesection( value_map* current_values )
+{
+	fprintf( stdout, "Diagnostic::check_cone_intersection start\n" );
+	// Checking only the OK values
+	for( value_map::iterator value_it = current_values->begin();
+		 value_it != current_values->end();
+		 value_it++ )
+	{
+		fprintf( stdout, "Diagnostic::check Checking gate '%s' '%s' ",
+					value_it->first.c_str(),
+					to_string( value_it->second ) );
+
+		if( value_it->second == GateValue::OK )
+		{
+			fprintf( stdout, " continuing\n" );
+
+			// Controlling through every KO exit
+			for( size_t i = 0; i < _ko_gates.size(); i++ )
+			{
+				fprintf( stdout, "\tComparing with '%s' '%s'\n",
+							_ko_gates.at( i ).c_str(),
+							to_string( _values.find( _ko_gates.at( i ) )->second ) );
+				// If the two cones have an intersection then i stop the
+				// procedure and return a true value: there is an intersection
+				if( _cones.find( value_it->first )->second
+						.intersection( _cones.find( _ko_gates.at( i ) )->second ) )
+					return true;
+			}
+		}
+
+		fprintf( stdout, "\n" );
+	}
+
+	fprintf( stdout, "Diagnostic::check_cone_intersection end, no intersection\n" );
+	// No intersections have been found
+	return false;
 }

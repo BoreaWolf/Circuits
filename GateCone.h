@@ -25,6 +25,7 @@ class GateCone
 		std::set< std::string >::iterator end();
 		void insert( std::string& );
 		void join( GateCone& );
+		bool intersection( GateCone& );
 		void print( const std::string&, FILE* = stdout );
 
 	private:
