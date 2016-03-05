@@ -8,6 +8,10 @@
 
 #include "GateCone.h"
 
+#ifndef DEBUG
+//	#define DEBUG
+#endif
+
 GateCone::GateCone()
 {
 	_cone = std::set< std::string >();
@@ -50,17 +54,40 @@ bool GateCone::intersection( GateCone& cone )
 		 it++ )
 		if( _cone.find( *it ) != _cone.end() )
 		{
+#ifdef DEBUG
 			fprintf( stdout, "GateCone::intersection found '%s' between ",
 						it->c_str() );
 			print( "" );
 			fprintf( stdout, " " );
 			cone.print( "" );
 			fprintf( stdout, "\n" );
+#endif
 			return true;
 		}
 
 	// No intersections have been found between the two cones
 	return false;
+}
+
+void GateCone::complement( GateCone& cone )
+{
+	// Going on every element of the argument cone and if I find one its
+	// elements also in the current cone then I'll delete from the current one
+	for( std::set< std::string >::iterator it = cone.begin();
+		 it != cone.end();
+		 it++ )
+		if( _cone.find( *it ) != _cone.end() )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "GateCone::complement found '%s' between ",
+						it->c_str() );
+			print( "" );
+			fprintf( stdout, " " );
+			cone.print( "" );
+			fprintf( stdout, ": removed\n" );
+#endif
+			_cone.erase( *it );
+		}
 }
 
 void GateCone::print( const std::string& component_name, FILE* file )

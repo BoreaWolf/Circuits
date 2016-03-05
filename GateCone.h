@@ -24,8 +24,12 @@ class GateCone
 		std::set< std::string >::iterator begin();
 		std::set< std::string >::iterator end();
 		void insert( std::string& );
+
+		// Set operations
 		void join( GateCone& );
 		bool intersection( GateCone& );
+		void complement( GateCone& );
+
 		void print( const std::string&, FILE* = stdout );
 
 	private:

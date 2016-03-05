@@ -63,50 +63,122 @@ void Diagnostic::solve( DiagnosesType diagnoses_type )
 
 void Diagnostic::all_diagnoses()
 {
-	value_map* current_subset;
+	gate_list* current_subset;
+	value_map okm_configuration = value_map();
+	GateValue value_temp;
+
 	for( int i = 0; i < get_ok_subset_number(); i++ )
 	{
+		// Resetting the OKM configuration so I can build a new one based on
+		// the current subset
+		okm_configuration = value_map();
 		current_subset = get_ith_ok_subset( i );
 
-		// Checking if the current subset needs to be processed:
-		// if the cone of the OK values does intersecate with a cone of a KO
-		// value then it needs to be processed
-		if( check_cone_interesection( current_subset ) )
+		for( value_map::iterator it = _values.begin();
+			 it != _values.end();
+			 it++ )
 		{
-			for( value_map::iterator it = current_subset->begin();
-				 it != current_subset->end();
-				 it++ )
-			{
-#ifdef DEBUG
-				fprintf( stdout, "%s: %s %s => ",
-							it->first.c_str(),
-							to_string( _values.find( it->first )->second ),
-							to_string( it->second ) );
-#endif
-				// Checking if the value associated to the current subset of every
-				// gate matches with the input data, if so I'll set it to OKM,
-				// otherwise I'll keep it as it is in the input
-				if( it->second == _values.find( it->first )->second )
-					it->second = GateValue::OKM;
-				else
-					it->second = _values.find( it->first )->second;
+			// Checking if the element is present in the subset, if so I set it
+			// to OKM exit value, otherwise I keep its configuration
+			if( std::find( current_subset->begin(),
+						   current_subset->end(),
+						   it->first ) != current_subset->end() )
+				value_temp = GateValue::OKM;
+			else
+				value_temp = it->second;
 
-#ifdef DEBUG
-				fprintf( stdout, "%s\n", to_string( it->second ) );
-#endif
-			}
-
-			// Joining the solution with the current calculated
-			//	_solution.join( diagnoses_one_config( current_subset ) );
+			// Adding the element to the configuration
+			okm_configuration.insert( 
+				std::pair< std::string, GateValue >
+				(
+					it->first,
+					value_temp
+				)
+			);
 		}
 
+#ifdef DEBUG
+		fprintf( stdout, "Diagnostic::all_diagnoses OKM configuration\n" );
+		for( value_map::iterator it = okm_configuration.begin();
+			 it != okm_configuration.end();
+			 it++ )
+			fprintf( stdout, "\t'%s' '%s'\n",
+						it->first.c_str(),
+						to_string( it->second ) );
+#endif
+
+		// Checking if the current subset needs to be processed:
+		// if the cones of the OK values do intersecate with a cone of a KO
+		// value then it needs to be processed
+		if( check_cone_intersection( okm_configuration ) )
+			diagnoses_one_config( okm_configuration );
+
+		//	_solution.join( diagnoses_one_config( current_subset ) );
+
 	}
-	fprintf( stdout, "\n" );
-	
 }
 
-void Diagnostic::diagnoses_one_config( value_map* current_values )
+void Diagnostic::diagnoses_one_config( value_map& current_values )
 {
+	// Creating the union of cones of the gates having OK as output value in the
+	// current case, received as argument
+	GateCone ok_cones = GateCone();
+	GateCone cone_temp;
+	std::vector< GateCone > cone_collection = std::vector< GateCone >();
+	choice_list choices = choice_list();
+
+	for( value_map::iterator it = current_values.begin();
+		 it != current_values.end();
+		 it++ )
+		if( it->second == GateValue::OK )
+			ok_cones.join( _cones.find( it->first )->second );
+
+#ifdef DEBUG
+	ok_cones.print( "All OK" );
+	fprintf( stdout, "\n" );
+#endif
+
+	// Creating the cone collection from OKM and KO outputs
+	for( value_map::iterator it = current_values.begin();
+		 it != current_values.end();
+		 it++ )
+		if( it->second == GateValue::OKM ||
+			it->second == GateValue::KO )
+		{
+			cone_temp = _cones.find( it->first )->second;
+			cone_temp.complement( ok_cones );
+			cone_collection.push_back( cone_temp );
+		}
+	
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::diagnoses_one_config Cone Collection A\n" );
+	for( size_t i = 0; i < cone_collection.size(); i++ )
+	{
+		fprintf( stdout, "\t" );
+		cone_collection.at( i ).print( "Sbra" );
+		fprintf( stdout, "\n" );
+	}
+#endif
+
+
+	// Creating the choices: as I understood from the slides, I need to create a
+	// choice for every OKM value associated with a random KO gate, so this is
+	// what I'm going to do
+	for( value_map::iterator it = current_values.begin();
+		 it != current_values.end();
+		 it++ )
+		if( it->second == GateValue::OKM )
+			choices.push_back(
+				choice( it->first, _ko_gates.at( rand() % _ko_gates.size() ) ) );
+	
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
+	for( size_t i = 0; i < choices.size(); i++ )
+		fprintf( stdout, "(%s, %s) ",
+					choices.at( i ).first.c_str(),
+					choices.at( i ).second.c_str() );
+	fprintf( stdout, "\n" );
+#endif
 }
 
 void Diagnostic::diagnoses_one_choice()
@@ -250,73 +322,87 @@ void Diagnostic::load( const std::string& input_filename )
 	input_file.close();
 }
 
-value_map* Diagnostic::get_ith_ok_subset( int i )
+gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
 {
-	value_map* result = new std::map< std::string, GateValue >();
+	gate_list* result = new gate_list();
 
-	// Creating the map having the gate name as key and OK/KO as value,
-	// translating the int parameter in its corresonding binary value and
-	// creating the subset with that information:
-	//  - 0 => OK
-	//  - 1 => KO
-	// It doesn't change much if OK = 0 | 1, at the end every set is going to be
-	// checked
+	// Creating a vector of elements that composes the ith subset of the ok
+	// gates and returns it
+	// The subset number is used to calculate which gates have to be part of the
+	// current subset, translating that number into its corresponding binary
+	// number and inserting it if the resulting binary value is 1.
 	
-	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %d: ", i );
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %d: ", subset_number );
+#endif
 
-	for( value_map::iterator it = _values.begin();
-		 it != _values.end();
-		 it++ )
+	for( size_t i = 0; i < _ok_gates.size(); i++ )
 	{
-		result->insert(
-			std::pair< std::string, GateValue >
-			(
-				it->first,
-				static_cast<GateValue>( i%2 )
-			)
-		);
+		if( subset_number % 2 == 1 )
+			result->push_back( _ok_gates.at( i ) );
 
-		fprintf( stdout, "%d(%s) ", i%2, to_string( static_cast< GateValue >( i%2 ) ) );
+#ifdef DEBUG
+		fprintf( stdout, "%s(%d)[%lu] ",
+					_ok_gates.at( i ).c_str(),
+					subset_number % 2,
+					result->size() );
+#endif
+
 		// Going for the next part of the binary number
-		i /= 2;
+		subset_number /= 2;
 	}
 
+#ifdef DEBUG
 	fprintf( stdout, "\n" );
+#endif
 
 	return result;
 }
 
 int Diagnostic::get_ok_subset_number()
 {
+#ifdef DEBUG
 	fprintf( stdout, "Diagnostic::get_ok_subset_number %d having %lu OK\n",
 				( _ok_gates.size() == 0 ? 0 : (int) pow( 2, _ok_gates.size() ) ),
 				_ok_gates.size() );
+#endif
 
 	return (int)( _ok_gates.size() == 0 ? 0 : ( pow( 2, _ok_gates.size() ) ) );
 }
 
-bool Diagnostic::check_cone_interesection( value_map* current_values )
+bool Diagnostic::check_cone_intersection( value_map& current_values )
 {
+#ifdef DEBUG
 	fprintf( stdout, "Diagnostic::check_cone_intersection start\n" );
+#endif
 	// Checking only the OK values
-	for( value_map::iterator value_it = current_values->begin();
-		 value_it != current_values->end();
+	for( value_map::iterator value_it = current_values.begin();
+		 value_it != current_values.end();
 		 value_it++ )
 	{
+#ifdef DEBUG
 		fprintf( stdout, "Diagnostic::check Checking gate '%s' '%s' ",
 					value_it->first.c_str(),
 					to_string( value_it->second ) );
+#endif
 
-		if( value_it->second == GateValue::OK )
+		// I already created the OKM configuration, so i treat the OKM as an OK
+		// output value and i'll check it
+		if( value_it->second == GateValue::OK || 
+			value_it->second == GateValue::OKM )
 		{
+#ifdef DEBUG
 			fprintf( stdout, " continuing\n" );
+#endif
 
 			// Controlling through every KO exit
 			for( size_t i = 0; i < _ko_gates.size(); i++ )
 			{
+#ifdef DEBUG
 				fprintf( stdout, "\tComparing with '%s' '%s'\n",
 							_ko_gates.at( i ).c_str(),
 							to_string( _values.find( _ko_gates.at( i ) )->second ) );
+#endif
 				// If the two cones have an intersection then i stop the
 				// procedure and return a true value: there is an intersection
 				if( _cones.find( value_it->first )->second
@@ -325,10 +411,15 @@ bool Diagnostic::check_cone_interesection( value_map* current_values )
 			}
 		}
 
+#ifdef DEBUG
 		fprintf( stdout, "\n" );
+#endif
 	}
 
+#ifdef DEBUG
 	fprintf( stdout, "Diagnostic::check_cone_intersection end, no intersection\n" );
+#endif
+
 	// No intersections have been found
 	return false;
 }

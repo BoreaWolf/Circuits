@@ -13,6 +13,7 @@
 #include "GateCone.h"
 #include "GateValue.h"
 
+#include <algorithm>
 #include <fstream>
 #include <regex>
 #include <map>
@@ -20,9 +21,12 @@
 #include <stdio.h>
 #include <string>
 
-typedef int sbra;
+// Type definitions
 typedef std::map< std::string, GateCone > cone_map;
 typedef std::map< std::string, GateValue > value_map;
+typedef std::vector< std::string > gate_list;
+typedef std::pair< std::string, std::string > choice;
+typedef std::vector< choice > choice_list;
 
 enum class DiagnosesType : int
 {
@@ -52,8 +56,12 @@ class Diagnostic
 		~Diagnostic();
 
 		void solve( DiagnosesType );
+
+		// Setting some output values to OKM
 		void all_diagnoses();
-		void diagnoses_one_config( value_map* );
+		// Setting some other output values to KOM
+		void diagnoses_one_config( value_map& );
+		// I don't know yet
 		void diagnoses_one_choice();
 
 	
@@ -61,9 +69,9 @@ class Diagnostic
 		// Methods
 		void load( const std::string& );
 
-		value_map* get_ith_ok_subset( int );
+		gate_list* get_ith_ok_subset( int );
 		int get_ok_subset_number();
-		bool check_cone_interesection( value_map* );
+		bool check_cone_intersection( value_map& );
 		
 		// Attributes
 		std::string _name;
@@ -72,8 +80,8 @@ class Diagnostic
 		// one map of string pair?
 		cone_map _cones;
 		value_map _values;
-		std::vector< std::string > _ok_gates;
-		std::vector< std::string > _ko_gates;
+		gate_list _ok_gates;
+		gate_list _ko_gates;
 		DiagnosticSolution _solution;
 };
 
