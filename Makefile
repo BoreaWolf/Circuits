@@ -15,7 +15,7 @@ GATES = and_gate.o gate_cone.o input_terminal.o logical_gate.o nand_gate.o \
 		xor_gate.o
 OBJ_SIM = circuit.o circuit_comparison.o circuit_solution.o component.o \
 	  constants.o $(GATES)
-OBJ_DIA = constants.o diagnostic.o
+OBJ_DIA = constants.o diagnostic.o gate_cone.o
 
 HEADERS = GateStatus.h
 

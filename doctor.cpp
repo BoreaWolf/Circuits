@@ -16,7 +16,8 @@
 int main( int argc, char ** argv )
 {
 	// File names
-	std::string input_data, input_diagnostic;
+	std::string input_data;
+	DiagnosesType input_diagnostic;
 
 	// Some input from the user
 	if( argc > 1 )
@@ -28,19 +29,19 @@ int main( int argc, char ** argv )
 		 *  - argv[ 2 ]: input diagnostic
 		 */
 		input_data = argv[ 1 ];
-		input_diagnostic = argv[ 2 ];
+		input_diagnostic = static_cast< DiagnosesType >( *( argv[ 2 ] ) - '0' );
 	}
 	else
 	{
 		// If the user doesn't specifies any input file, I'll read all the
 		// instances and solve them
 		input_data = StringConstants::FILE_INPUT_DATA_DIAGNOSTIC;
+		input_diagnostic = DiagnosesType::ALL_MASKING;
 		// Create an enum to define diagnostic types
-		//	input_diagnostic = StringConstants::FILE_INPUT_CONFIGURATION;
 	}
 
-	Diagnostic dia( input_data, input_diagnostic );
-	dia.solve();
+	Diagnostic dia( input_data );
+	dia.solve( input_diagnostic );
 
 	fprintf( stdout, "Yeah! Diagnostics done! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n" );
 	

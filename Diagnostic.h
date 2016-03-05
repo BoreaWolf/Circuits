@@ -9,20 +9,61 @@
 #ifndef DIAGNOSTIC
 #define DIAGNOSTIC
 
+#include "GateCone.h"
+
 #include <fstream>
 #include <regex>
+#include <map>
 #include <stdio.h>
 #include <string>
-#include <vector>
 
+enum class GateValue : int
+{
+	OK = 0,
+	KO = 1,
+	OKM = 2,
+	KOM = 3
+};
+
+inline const char* to_string( GateValue v )
+{
+    switch( v )
+    {
+		case GateValue::OK:		return "OK";
+		case GateValue::KO:		return "KO";
+		case GateValue::OKM:	return "OKM";
+		case GateValue::KOM:	return "KOM";
+    }
+}
+
+enum class DiagnosesType : int
+{
+	ALL_DIAGNOSES = 0,
+	NO_MASKING = 1,
+	ALL_MASKING = 2,
+	OK_MASKING = 3,
+	KO_MASKING = 4
+};
+
+inline const char* to_string( DiagnosesType v )
+{
+    switch( v )
+    {
+		case DiagnosesType::ALL_DIAGNOSES:	return "All Diagnoses";
+		case DiagnosesType::NO_MASKING:		return "No Masking Diagnoses";
+		case DiagnosesType::ALL_MASKING:	return "All Masking Diagnoses";
+		case DiagnosesType::OK_MASKING:		return "Ok Masking Diagnoses";
+		case DiagnosesType::KO_MASKING:		return "Ko Maskning Diagnoses";
+    }
+}
 
 class Diagnostic
 {
 	public:
-		Diagnostic( const std::string&, const std::string& );
+		Diagnostic( const std::string& );
 		~Diagnostic();
 
-		void solve();
+		void solve( DiagnosesType );
 	
 	private:
 		// Methods
@@ -30,7 +71,11 @@ class Diagnostic
 		
 		// Attributes
 		std::string _name;
-		std::string _diagnostic;
+
+		// TODO Should I keep these two maps separated or should I join them in
+		// one map of string pair?
+		std::map< std::string, GateCone > _cones;
+		std::map< std::string, GateValue > _values;
 };
 
 #endif

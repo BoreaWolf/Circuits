@@ -9,15 +9,16 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-//	#define DEBUG
+	#define DEBUG
 #endif
 
-Diagnostic::Diagnostic( const std::string& input_filename,
-						const std::string& input_diagnostic )
+// TODO Is the diagnoses type really necessary here? Maybe i could pass it to
+// the solve method, seems more reasonable
+Diagnostic::Diagnostic( const std::string& input_filename )
 {
-
 	_name = input_filename;
-	_diagnostic = input_diagnostic;
+	_cones = std::map< std::string, GateCone >();
+	_values = std::map< std::string, GateValue >();
 
 	load( _name );
 
@@ -35,18 +36,33 @@ Diagnostic::~Diagnostic()
 #endif
 }
 
-void Diagnostic::solve()
+void Diagnostic::solve( DiagnosesType diagnoses_type )
 {
 	fprintf( stdout, "Diagnostic::solve Solving '%s'\n",
 				_name.c_str() );
+
+	fprintf( stdout, "'%s' requested\n", to_string( diagnoses_type ) );
+
+	switch( diagnoses_type )
+	{
+		case DiagnosesType::ALL_DIAGNOSES:
+			break;
+		case DiagnosesType::NO_MASKING:
+			break;
+		case DiagnosesType::ALL_MASKING:
+			break;
+		case DiagnosesType::OK_MASKING:
+			break;
+		case DiagnosesType::KO_MASKING:
+			break;
+	}
 }
 
 // Private methods
 void Diagnostic::load( const std::string& input_filename )
 {
-	// TODO
-/*
-	// Opening the file and reading all the components of the circuit
+
+	// Opening the file and reading the cones
 	std::ifstream input_file( input_filename, std::ifstream::in );
 	if( input_file == NULL )
 	{
@@ -54,17 +70,20 @@ void Diagnostic::load( const std::string& input_filename )
 					input_filename.c_str() );
 		exit( 1 );
 	}
-	
-	// Reading the file using some regex
-	std::regex regex_terminals( "(IN|OUT)PUT\\(([A-Z][0-9]+)\\)" );
-	std::regex regex_logic_ports( "([A-Z][0-9]+) = ([A-Z]+)\\(([A-Z][0-9]+)((,([A-Z][0-9]+))*)\\)" );
+
+	// Reading the file using a regex
+	//  - 0: the whole line that matched
+	//  - 1: gate name
+	//  - 2: list of gates composing the cone
+	//  - 3: last element of the list, not used
+	//  - 4: gate value
+	std::regex regex_cones( "([A-Z][0-9]+):.*\\{(( [A-Z][0-9]+,?)*) \\}.*(OK|KO)" );
 	std::smatch regex_results;
-
 	std::string line;
-
-	std::vector< std::string > outputs;
-	std::vector< Component* > gate_inputs;
-
+	std::string cone_list;
+	std::string cone_name_temp;
+	GateCone cone_temp;
+	
 	// Reading lines one per time and applying the regex
 	while( std::getline( input_file, line ) )
 	{
@@ -72,168 +91,98 @@ void Diagnostic::load( const std::string& input_filename )
 		if( line.length() > 1 )
 		{
 			// Terminals regex: Input and Output
-			if( std::regex_search( line, regex_results, regex_terminals ) )
+			if( std::regex_search( line, regex_results, regex_cones ) )
 			{
 #ifdef DEBUG	
-				fprintf( stdout, "IN/OUT found %lu: ", regex_results.size() );
+				fprintf( stdout, "Cone found %lu: ", regex_results.size() );
 				for( size_t i = 0; i < regex_results.size(); i++ )
 					fprintf( stdout, "'%s' ", regex_results.str( i ).c_str() );
 				fprintf( stdout, "\n" );
 #endif
 
-				// Creating the input terminal
-				if( regex_results.str( 1 ).compare( "IN" ) == 0 )
-				{
-					// Creating a new Input Terminal
-					_inputs.push_back( 
-						new InputTerminal( regex_results.str( 2 ) ) );
-				}
-				else
-					// Saving the name of the output terminal, I'll use it later
-					if( regex_results.str( 1 ).compare( "OUT" ) == 0 )
-						outputs.push_back( regex_results.str( 2 ) );
-			}
-			else
-			{
-				// Logical ports regex
-				if( std::regex_search( line, regex_results, regex_logic_ports ) )
-				{
-					
-#ifdef DEBUG
-					fprintf( stdout, "Logic port found %lu: ", regex_results.size() );
-					for( size_t i = 0; i < regex_results.size(); i++ )
-						fprintf( stdout, "'%s' ", regex_results.str( i ).c_str() );
-					fprintf( stdout, "\n" );
-#endif
-					
-					// Getting the inputs name
-					gate_inputs.clear();
-					// The input elements are in the third and fourth
-					// regex_results, always having one element in the third one
-					// despite the fourth that could have one, a list or no
-					// elements
-					gate_inputs.push_back(
-						_components.find( regex_results.str( 3 ) )->second );
+				// Saving the cone
+				// Processing all the gates in the list and adding them one by
+				// one to the cone
+				cone_temp = GateCone();
+				cone_list = regex_results.str( 2 );
 
-					if( !regex_results.str( 4 ).empty() )
+				// Checking if the gate really has a cone or not
+				if( !cone_list.empty() )
+				{
+					size_t pos;
+					// Deleting the first space
+					cone_list.erase( 0, 1 );
+
+					while( ( pos = cone_list.find( "," ) ) != std::string::npos )
 					{
-						std::string input_list = regex_results.str( 4 );
-
-						size_t pos;
-						// Deleting the first comma
-						input_list.erase( 0, 1 );
-
-						while( ( pos = input_list.find( "," ) ) != std::string::npos )
-						{
-							gate_inputs.push_back(
-								_components.find( input_list.substr( 0, pos ) )->second );
-							
-							// Deleting the input name just processed
-							input_list.erase( 0, pos + 1 );
-						}
-
-						// Adding the last element
-						gate_inputs.push_back(
-							_components.find( input_list )->second );
+						cone_name_temp = cone_list.substr( 0, pos );
+						cone_temp.insert( cone_name_temp );
+						
+						// Deleting the input name just processed, the comma and the
+						// successive space
+						cone_list.erase( 0, pos + 2 );
 					}
 
-#ifdef DEBUG
-					fprintf( stdout, "%lu Gates: ", gate_inputs.size() );
-					fflush( stdout );
-					for( size_t i = 0; i < gate_inputs.size(); i++ )
-					 fprintf( stdout, "%s ", gate_inputs.at( i )->get_name().c_str() );
-					fprintf( stdout, "\n" );
-					fflush( stdout );
-#endif
-
-					// Creating different logical gates depending on the type
-					// read
-					if( regex_results.str( 2 ).compare( "AND" ) == 0 )
-						_logical_gates.push_back(
-							new AndGate( regex_results.str( 1 ),
-										 gate_inputs ) );
-
-					else if( regex_results.str( 2 ).compare( "NAND" ) == 0 )
-								_logical_gates.push_back(
-									new NandGate( regex_results.str( 1 ),
-												  gate_inputs ) );
-
-					else if( regex_results.str( 2 ).compare( "NOR" ) == 0 )
-								_logical_gates.push_back(
-									new NorGate( regex_results.str( 1 ),
-												 gate_inputs ) );
-
-					else if( regex_results.str( 2 ).compare( "NOT" ) == 0 )
-								_logical_gates.push_back(
-									new NotGate( regex_results.str( 1 ),
-												 gate_inputs ) );
-					
-					else if( regex_results.str( 2 ).compare( "OR" ) == 0 )
-								_logical_gates.push_back(
-									new OrGate( regex_results.str( 1 ),
-												gate_inputs ) );
-
-					else if( regex_results.str( 2 ).compare( "XNOR" ) == 0 )
-								_logical_gates.push_back(
-									new XnorGate( regex_results.str( 1 ),
-												  gate_inputs ) );
-
-					else if( regex_results.str( 2 ).compare( "XOR" ) == 0 )
-								_logical_gates.push_back(
-									new XorGate( regex_results.str( 1 ),
-												 gate_inputs ) );
-
+					// Adding the last element
+					cone_temp.insert( cone_list );
 				}
-				// Something is not recognized correctly
-				else
-				{
-					fprintf( stdout, "Circuit::load Error in reading the input file! %s line read not recognized.\n", line.c_str() );
-					exit( 1 );
-				}
-			}
 
-			// Adding the component to the map, checking if it was a terminal
-			// input or a logical gate
-			if( regex_results.str( 1 ).compare( "IN" ) == 0 )
-			{
-				_components.insert(
-					std::pair< std::string, Component* >
+				// Adding the cone to the map
+				_cones.insert(
+					std::pair< std::string, GateCone >
 						(
-						    _inputs.at( _inputs.size() - 1 )->get_name(),
-						    _inputs.at( _inputs.size() - 1 )
+							regex_results.str( 1 ),
+							cone_temp
 						)
-					);
+				);
+
+				GateValue value_temp;
+
+				if( regex_results.str( 4 ).compare( "OK" ) == 0 )
+					value_temp = GateValue::OK;
+				else if( regex_results.str( 4 ).compare( "KO" ) == 0 )
+					value_temp = GateValue::KO;
+
+				// Adding the value
+				_values.insert(
+					std::pair< std::string, GateValue >
+						(
+							regex_results.str( 1 ),
+							value_temp
+						)
+				);
 			}
-			else if( regex_results.str( 1 ).compare( "OUT" ) != 0 )
+			// Something is not recognized correctly
+			else
 			{
-				_components.insert( 
-					std::pair< std::string, Component* >
-						(
-						    _logical_gates.at( _logical_gates.size() - 1 )->get_name(),
-						    _logical_gates.at( _logical_gates.size() - 1 )
-						)
-				 );
+				fprintf( stdout, "Diagnostic::load Error in reading the input file! %s line read not recognized.\n", line.c_str() );
+				exit( 1 );
 			}
 		}
-
-#ifdef DEBUG
-		fprintf( stdout, "Map size: %lu => ", _components.size() );
-		for( component_map::iterator i = _components.begin(); i != _components.end(); i++ )
-			fprintf( stdout, "%s(%p) ",
-						i->first.c_str(),
-						i->second );
-		fprintf( stdout, "\n" );
-		fflush( stdout );
-#endif
 	}
 
-	// Adding the output terminals
-	for( size_t i = 0; i < outputs.size(); i++ )
-		_outputs.push_back(
-			new OutputTerminal( outputs.at( i ),
-								_components.find( outputs.at( i ) )->second ) );
+#ifdef DEBUG
+		fprintf( stdout, "Cones Map size: %lu\n", _cones.size() );
+		for( std::map< std::string, GateCone >::iterator i = _cones.begin();
+			 i != _cones.end();
+			 i++ )
+		{
+			fprintf( stdout, "\t" );
+			i->second.print( i->first );
+			fprintf( stdout, "\n" );
+		}
+		fflush( stdout );
+
+		fprintf( stdout, "Values Map size: %lu\n", _values.size() );
+		for( std::map< std::string, GateValue >::iterator i = _values.begin();
+			 i != _values.end();
+			 i++ )
+			fprintf( stdout, "\t%s(%s)\n",
+						i->first.c_str(),
+						to_string( i->second ) );
+		fflush( stdout );
+#endif
 
 	// Closing the file
 	input_file.close();
-*/
 }
