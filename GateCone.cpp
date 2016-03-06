@@ -40,12 +40,74 @@ void GateCone::insert( std::string& entry )
 	_cone.insert( entry );
 }
 
-void GateCone::join( GateCone& cone )
+GateCone GateCone::join( GateCone& cone )
 {
-	_cone.insert( cone.begin(), cone.end() );
+	GateCone result = GateCone( *this );
+
+	result._cone.insert( cone.begin(), cone.end() );
+
+	return result;
 }
 
-bool GateCone::intersection( GateCone& cone )
+GateCone GateCone::complement( GateCone& cone )
+{
+	// Copying the current cone into the resulting one
+	GateCone result = GateCone( *this );
+
+	// Going on every element of the argument cone and if I find one its
+	// elements also in the current cone then I'll delete from the current one
+	for( std::set< std::string >::iterator it = cone.begin();
+		 it != cone.end();
+		 it++ )
+		if( result._cone.find( *it ) != result._cone.end() )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "GateCone::complement found '%s' between ",
+						it->c_str() );
+			print( "" );
+			fprintf( stdout, " " );
+			cone.print( "" );
+			fprintf( stdout, ": removed\n" );
+#endif
+			result._cone.erase( *it );
+		}
+
+	return result;
+}
+
+GateCone GateCone::intersection( GateCone& cone )
+{
+#ifdef DEBUG
+	fprintf( stdout, "GateCone::intersection between " );
+	print( "" );
+	fprintf( stdout, " " );
+	cone.print( "" );
+	fprintf( stdout, "{ " );
+#endif
+
+	GateCone result = GateCone();
+
+	for( std::set< std::string >::iterator it = cone.begin();
+		 it != cone.end();
+		 it++ )
+	{
+		if( _cone.find( *it ) != _cone.end() )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "%s ", it->c_str() );
+#endif
+			result._cone.insert( *it );
+		}
+	}
+
+#ifdef DEBUG
+	fprintf( stdout, "}\n" );
+#endif
+
+	return result;
+}
+
+bool GateCone::intersecate( GateCone& cone )
 {
 	// Passing every element of the argument cone and checking if I find it in
 	// the current one
@@ -55,7 +117,7 @@ bool GateCone::intersection( GateCone& cone )
 		if( _cone.find( *it ) != _cone.end() )
 		{
 #ifdef DEBUG
-			fprintf( stdout, "GateCone::intersection found '%s' between ",
+			fprintf( stdout, "GateCone::intersecate found '%s' between ",
 						it->c_str() );
 			print( "" );
 			fprintf( stdout, " " );
@@ -69,25 +131,9 @@ bool GateCone::intersection( GateCone& cone )
 	return false;
 }
 
-void GateCone::complement( GateCone& cone )
+bool GateCone::empty()
 {
-	// Going on every element of the argument cone and if I find one its
-	// elements also in the current cone then I'll delete from the current one
-	for( std::set< std::string >::iterator it = cone.begin();
-		 it != cone.end();
-		 it++ )
-		if( _cone.find( *it ) != _cone.end() )
-		{
-#ifdef DEBUG
-			fprintf( stdout, "GateCone::complement found '%s' between ",
-						it->c_str() );
-			print( "" );
-			fprintf( stdout, " " );
-			cone.print( "" );
-			fprintf( stdout, ": removed\n" );
-#endif
-			_cone.erase( *it );
-		}
+	return _cone.empty();
 }
 
 void GateCone::print( const std::string& component_name, FILE* file )

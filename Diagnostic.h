@@ -27,6 +27,7 @@ typedef std::map< std::string, GateValue > value_map;
 typedef std::vector< std::string > gate_list;
 typedef std::pair< std::string, std::string > choice;
 typedef std::vector< choice > choice_list;
+typedef std::vector< GateCone > cone_list;
 
 enum class DiagnosesType : int
 {
@@ -60,9 +61,9 @@ class Diagnostic
 		// Setting some output values to OKM
 		void all_diagnoses();
 		// Setting some other output values to KOM
-		void diagnoses_one_config( value_map& );
-		// I don't know yet
-		void diagnoses_one_choice();
+		void diagnoses_one_config();
+		// Calculating the final diagnoses solution
+		void diagnoses_one_choice( cone_map&, choice_list* );
 
 	
 	private:
@@ -72,6 +73,12 @@ class Diagnostic
 		gate_list* get_ith_ok_subset( int );
 		int get_ok_subset_number();
 		bool check_cone_intersection( value_map& );
+
+		void update_processing_vector( value_map& );
+		void print_processing_status();
+
+		int get_choice_combinations_number();
+		choice_list* get_ith_choice( int );
 		
 		// Attributes
 		std::string _name;
@@ -82,6 +89,14 @@ class Diagnostic
 		value_map _values;
 		gate_list _ok_gates;
 		gate_list _ko_gates;
+
+		// Lists of gates that are going to be kept updated while the processing
+		// goes on
+		gate_list _processing_ok;
+		gate_list _processing_ko;
+		gate_list _processing_okm;
+		gate_list _processing_kom;
+
 		DiagnosticSolution _solution;
 };
 

@@ -19,8 +19,13 @@ Diagnostic::Diagnostic( const std::string& input_filename )
 	_name = input_filename;
 	_cones = cone_map();
 	_values = value_map();
-	_ok_gates = std::vector< std::string >();
-	_ko_gates = std::vector< std::string >();
+	_ok_gates = gate_list();
+	_ko_gates = gate_list();
+
+	_processing_ok = gate_list();
+	_processing_ko = gate_list();
+	_processing_okm = gate_list();
+	_processing_kom = gate_list();
 
 	load( _name );
 
@@ -67,7 +72,8 @@ void Diagnostic::all_diagnoses()
 	value_map okm_configuration = value_map();
 	GateValue value_temp;
 
-	for( int i = 0; i < get_ok_subset_number(); i++ )
+	//	for( int i = 0; i < get_ok_subset_number(); i++ )
+	int i = 3;
 	{
 		// Resetting the OKM configuration so I can build a new one based on
 		// the current subset
@@ -107,31 +113,29 @@ void Diagnostic::all_diagnoses()
 						to_string( it->second ) );
 #endif
 
+		update_processing_vector( okm_configuration );
+
 		// Checking if the current subset needs to be processed:
 		// if the cones of the OK values do intersecate with a cone of a KO
 		// value then it needs to be processed
 		if( check_cone_intersection( okm_configuration ) )
-			diagnoses_one_config( okm_configuration );
+			diagnoses_one_config();
 
 		//	_solution.join( diagnoses_one_config( current_subset ) );
 
 	}
 }
 
-void Diagnostic::diagnoses_one_config( value_map& current_values )
+void Diagnostic::diagnoses_one_config()
 {
-	// Creating the union of cones of the gates having OK as output value in the
-	// current case, received as argument
 	GateCone ok_cones = GateCone();
-	GateCone cone_temp;
-	std::vector< GateCone > cone_collection = std::vector< GateCone >();
-	choice_list choices = choice_list();
-
-	for( value_map::iterator it = current_values.begin();
-		 it != current_values.end();
-		 it++ )
-		if( it->second == GateValue::OK )
-			ok_cones.join( _cones.find( it->first )->second );
+	cone_map cone_collection = cone_map();
+	choice_list* choices = new choice_list();
+	
+	// Creating the union of cones of the gates having OK as output value in the
+	// current case
+	for( size_t i = 0; i < _processing_ok.size(); i++ )
+		ok_cones = ok_cones.join( _cones.find( _processing_ok.at( i ) )->second );
 
 #ifdef DEBUG
 	ok_cones.print( "All OK" );
@@ -139,50 +143,155 @@ void Diagnostic::diagnoses_one_config( value_map& current_values )
 #endif
 
 	// Creating the cone collection from OKM and KO outputs
-	for( value_map::iterator it = current_values.begin();
-		 it != current_values.end();
-		 it++ )
-		if( it->second == GateValue::OKM ||
-			it->second == GateValue::KO )
-		{
-			cone_temp = _cones.find( it->first )->second;
-			cone_temp.complement( ok_cones );
-			cone_collection.push_back( cone_temp );
-		}
+	// OKM
+	for( size_t i = 0; i < _processing_okm.size(); i++ )
+		cone_collection.insert( 
+			std::pair< std::string, GateCone >
+			(
+				_processing_okm.at( i ),
+				_cones.find( _processing_okm.at( i ) )->second
+					.complement( ok_cones ) 
+			) );
+
+	// KO
+	for( size_t i = 0; i < _processing_ko.size(); i++ )
+		cone_collection.insert( 
+			std::pair< std::string, GateCone >
+			(
+				_processing_ko.at( i ),
+				_cones.find( _processing_ko.at( i ) )->second
+					.complement( ok_cones )
+			) );
 	
 #ifdef DEBUG
 	fprintf( stdout, "Diagnostic::diagnoses_one_config Cone Collection A\n" );
-	for( size_t i = 0; i < cone_collection.size(); i++ )
+	for( cone_map::iterator it = cone_collection.begin();
+		 it != cone_collection.end();
+		 it++ )
 	{
-		fprintf( stdout, "\t" );
-		cone_collection.at( i ).print( "Sbra" );
+		fprintf( stdout, "\t'%s': ", it->first.c_str() );
+		it->second.print( it->first );
 		fprintf( stdout, "\n" );
 	}
 #endif
 
+	// Creating all the possible combinations between OKM and KO so, in the next
+	// step, I can determine which are the KOM gates
+	// I'll keep going with the diagnoses only if the number of KOM selected are
+	// less or equal than the number of OKM gates (suggested improvement)
+	for( int i = 0; i < get_choice_combinations_number(); i++ )
+	{
+		// Restoring KO and KOM vectors
+		_processing_kom.clear();
+		_processing_ko = _ko_gates;
 
-	// Creating the choices: as I understood from the slides, I need to create a
-	// choice for every OKM value associated with a random KO gate, so this is
-	// what I'm going to do
-	for( value_map::iterator it = current_values.begin();
-		 it != current_values.end();
-		 it++ )
-		if( it->second == GateValue::OKM )
-			choices.push_back(
-				choice( it->first, _ko_gates.at( rand() % _ko_gates.size() ) ) );
-	
+		// Retrieving the ith combination of choices
+		choices = get_ith_choice( i );
+
+		// Updating the KO list accordingly with the set KOM gates
+		for( size_t i = 0; i < _processing_kom.size(); i++ )
+			_processing_ko.erase( std::find( _processing_ko.begin(),
+											 _processing_ko.end(),
+											 _processing_kom.at( i ) ) );
+		
 #ifdef DEBUG
-	fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
-	for( size_t i = 0; i < choices.size(); i++ )
-		fprintf( stdout, "(%s, %s) ",
-					choices.at( i ).first.c_str(),
-					choices.at( i ).second.c_str() );
-	fprintf( stdout, "\n" );
+		fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
+		for( size_t i = 0; i < choices->size(); i++ )
+			fprintf( stdout, "(%s, %s) ",
+						choices->at( i ).first.c_str(),
+						choices->at( i ).second.c_str() );
+		fprintf( stdout, "\n" );
+
+		print_processing_status();
 #endif
+
+		// Improvement suggested from the slide: processing only the choices
+		// where there are less or equal KOM selected than OKM 
+		// KOM.size() <= OKM.size()
+		if( _processing_kom.size() <= _processing_okm.size() )
+			diagnoses_one_choice( cone_collection, choices );
+	}
 }
 
-void Diagnostic::diagnoses_one_choice()
+void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
+									   choice_list* choices )
 {
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::diagnoses_one_choice sbrappappero\n" );
+
+	fprintf( stdout, "Diagnostic::diagnoses_one_choice Cone Collection A\n" );
+	for( cone_map::iterator it = cone_collection.begin();
+		 it != cone_collection.end();
+		 it++ )
+	{
+		fprintf( stdout, "\t'%s': ", it->first.c_str() );
+		it->second.print( it->first );
+		fprintf( stdout, "\n" );
+	}
+
+	fprintf( stdout, "Diagnostic::diagnoses_one_choice Choices: " );
+	for( size_t i = 0; i < choices->size(); i++ )
+		fprintf( stdout, "(%s, %s) ",
+					choices->at( i ).first.c_str(),
+					choices->at( i ).second.c_str() );
+	fprintf( stdout, "\n" );
+
+#endif
+
+	cone_list result = cone_list();
+	GateCone complement, intersection;
+
+	for( size_t i = 0; i < choices->size(); i++ )
+	{	
+		// Temporary cones: using temp variables because are long and are needed
+		// two times
+		complement = 
+			cone_collection.find( choices->at( i ).first )->second
+				.complement( 
+					cone_collection.find( choices->at( i ).second )->second );
+		intersection = 
+			cone_collection.find( choices->at( i ).first )->second
+				.intersection(
+					cone_collection.find( choices->at( i ).second )->second );
+
+		// Checking if the difference between selected gate cones are empty: if
+		// so I interrupt the procedure
+		if( complement.empty() || intersection.empty() )
+		{
+			fprintf( stdout, "Diagnostic::diagnoses_one_choice Stopping procedure\n" );
+			return;
+		}
+
+#ifdef DEBUG
+		fprintf( stdout, "Choice (%s, %s):\n\t",
+					choices->at( i ).first.c_str(),
+					choices->at( i ).second.c_str() );
+		complement.print( "Complement" );
+		fprintf( stdout, "\n\t" );
+		intersection.print( "Intersection" );
+		fprintf( stdout, "\n" );
+#endif
+
+		// Composing the GateCone that is going to be processed at the end
+		result.push_back( complement );
+		result.push_back( intersection );
+	}
+
+	// Processing the cone collection now: I have to add to the result the cones
+	// of the KO/KOM elements not present in the choices, so only the KO gates
+	for( size_t i = 0; i < _processing_ko.size(); i++ )
+		result.push_back( 
+			cone_collection.find( _processing_ko.at( i ) )->second );
+	
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::diagnoses_one_choice Collection B\n" );
+	for( size_t i = 0; i < result.size(); i++ )
+	{
+		fprintf( stdout, "\t" );
+		result.at( i ).print( "" );
+		fprintf( stdout, "\n" );
+	}
+#endif
 }
 
 // Private methods
@@ -362,7 +471,7 @@ gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
 int Diagnostic::get_ok_subset_number()
 {
 #ifdef DEBUG
-	fprintf( stdout, "Diagnostic::get_ok_subset_number %d having %lu OK\n",
+	fprintf( stdout, "\nDiagnostic::get_ok_subset_number %d having %lu OK\n",
 				( _ok_gates.size() == 0 ? 0 : (int) pow( 2, _ok_gates.size() ) ),
 				_ok_gates.size() );
 #endif
@@ -399,15 +508,24 @@ bool Diagnostic::check_cone_intersection( value_map& current_values )
 			for( size_t i = 0; i < _ko_gates.size(); i++ )
 			{
 #ifdef DEBUG
-				fprintf( stdout, "\tComparing with '%s' '%s'\n",
+				fprintf( stdout, "\tComparing with '%s' '%s' ",
 							_ko_gates.at( i ).c_str(),
 							to_string( _values.find( _ko_gates.at( i ) )->second ) );
 #endif
 				// If the two cones have an intersection then i stop the
 				// procedure and return a true value: there is an intersection
 				if( _cones.find( value_it->first )->second
-						.intersection( _cones.find( _ko_gates.at( i ) )->second ) )
+						.intersecate( _cones.find( _ko_gates.at( i ) )->second ) )
+				{
+#ifdef DEBUG
+					fprintf( stdout, "found\n" );
+#endif
 					return true;
+				}
+
+#ifdef DEBUG
+				fprintf( stdout, "\n" );
+#endif
 			}
 		}
 
@@ -422,4 +540,125 @@ bool Diagnostic::check_cone_intersection( value_map& current_values )
 
 	// No intersections have been found
 	return false;
+}
+
+void Diagnostic::update_processing_vector( value_map& current_status )
+{
+	_processing_ok.clear();
+	_processing_ko.clear();
+	_processing_okm.clear();
+	_processing_kom.clear();
+
+	for( value_map::iterator it = current_status.begin();
+		 it != current_status.end();
+		 it++ )
+	{
+		switch( it->second )
+		{
+			case GateValue::OK:
+				_processing_ok.push_back( it->first );
+				break;
+
+			case GateValue::KO:
+				_processing_ko.push_back( it->first );
+				break;
+				
+			case GateValue::OKM:
+				_processing_okm.push_back( it->first );
+				break;
+
+			case GateValue::KOM:
+				_processing_kom.push_back( it->first );
+				break;
+
+			default:
+				fprintf( stdout, "Diagnotic::update_processing_vector Error\n" );
+				return;
+		}
+	}
+
+	print_processing_status();
+}
+
+void Diagnostic::print_processing_status()
+{
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::print_processing_vector current status\n" );
+	fprintf( stdout, "\tOK: " );
+	for( size_t i = 0; i < _processing_ok.size(); i++ )
+		fprintf( stdout, "'%s' ", _processing_ok.at( i ).c_str() );
+
+	fprintf( stdout, "\n\tKO: " );
+	for( size_t i = 0; i < _processing_ko.size(); i++ )
+		fprintf( stdout, "'%s' ", _processing_ko.at( i ).c_str() );
+
+	fprintf( stdout, "\n\tOKM: " );
+	for( size_t i = 0; i < _processing_okm.size(); i++ )
+		fprintf( stdout, "'%s' ", _processing_okm.at( i ).c_str() );
+
+	fprintf( stdout, "\n\tKOM: " );
+	for( size_t i = 0; i < _processing_kom.size(); i++ )
+		fprintf( stdout, "'%s' ", _processing_kom.at( i ).c_str() );
+	fprintf( stdout, "\n" );
+#endif
+}
+
+int Diagnostic::get_choice_combinations_number()
+{
+#ifdef DEBUG
+	fprintf( stdout, "\nDiagnostic::get_choice_combinations_number %d having %lu OKM and %lu KO\n",
+				( _processing_okm.size() == 0 ? 
+					0 : 
+					(int) pow( _ko_gates.size(), _processing_okm.size() ) ),
+				_processing_okm.size(),
+				_ko_gates.size() );
+#endif
+
+	return (int)( _processing_okm.size() == 0 ? 
+					0 : 
+					pow( _ko_gates.size(), _processing_okm.size() ) );
+}
+
+// Composing the ith combination of the possible choices, starting from the OKM
+// and KO lists
+// The combination number will get transformed in a different base number
+// according to the current KO list size
+choice_list* Diagnostic::get_ith_choice( int combination_number )
+{
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::get_ith_choice %d\n", combination_number );
+#endif
+
+	choice_list* result = new choice_list();
+	
+	// Clearing the kom vector
+	_processing_kom.clear();
+
+	for( size_t i = 0; i < _processing_okm.size(); i++ )
+	{
+		result->push_back( 
+			choice( 
+				_processing_okm.at( i ),
+				_ko_gates.at( combination_number % _ko_gates.size() ) ) );
+
+		// Adding the current element to the kom gates, if not already in it
+		if( std::find( _processing_kom.begin(),
+					   _processing_kom.end(),
+					   _ko_gates.at( combination_number % _ko_gates.size() ) )
+			== _processing_kom.end() )
+			_processing_kom.push_back( 
+				_ko_gates.at( combination_number % _ko_gates.size() ) );
+
+		// Going forward to the next okm element
+		combination_number /= _ko_gates.size();
+	}
+
+#ifdef DEBUG
+	for( size_t i = 0; i < result->size(); i++ )
+		fprintf( stdout, "\t(%s, %s)\n",
+					result->at( i ).first.c_str(),
+					result->at( i ).second.c_str() );
+#endif
+
+	return result;
 }

@@ -26,9 +26,12 @@ class GateCone
 		void insert( std::string& );
 
 		// Set operations
-		void join( GateCone& );
-		bool intersection( GateCone& );
-		void complement( GateCone& );
+		GateCone join( GateCone& );
+		GateCone complement( GateCone& );
+		GateCone intersection( GateCone& );
+
+		bool intersecate( GateCone& );
+		bool empty();
 
 		void print( const std::string&, FILE* = stdout );
 
