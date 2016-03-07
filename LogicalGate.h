@@ -25,7 +25,6 @@ class LogicalGate : public Component
 		~LogicalGate();
 
 		void calculate_cone();
-		// TODO: Fix this stuff
 		virtual int compute() = 0;
 		void calculate_value(){ compute(); }
 

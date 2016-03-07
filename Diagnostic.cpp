@@ -12,8 +12,6 @@
 	#define DEBUG
 #endif
 
-// TODO Is the diagnoses type really necessary here? Maybe i could pass it to
-// the solve method, seems more reasonable
 Diagnostic::Diagnostic( const std::string& input_filename )
 {
 	_name = input_filename;
@@ -373,7 +371,6 @@ void Diagnostic::load( const std::string& input_filename )
 
 				// Saving information about the value in both a map and in two
 				// vectors
-				// TODO Really needed?
 				GateValue value_temp;
 
 				if( regex_results.str( 4 ).compare( "OK" ) == 0 )

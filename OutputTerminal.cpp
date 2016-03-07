@@ -42,7 +42,6 @@ OutputTerminal::~OutputTerminal()
 
 void OutputTerminal::calculate_cone()
 {
-	// TODO: Not really sure about this
 	_cone = _gate->get_cone();
 }
 

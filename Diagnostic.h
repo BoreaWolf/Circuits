@@ -83,8 +83,8 @@ class Diagnostic
 		// Attributes
 		std::string _name;
 
-		// TODO Should I keep these two maps separated or should I join them in
-		// one map of string pair?
+		// Map of cones and of output values with lists to easily locate ok and
+		// ko gates
 		cone_map _cones;
 		value_map _values;
 		gate_list _ok_gates;
