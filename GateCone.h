@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <string>
 
+typedef std::set< std::string >::iterator GateConeIterator;
+
 class GateCone
 {
 	public:
@@ -21,8 +23,9 @@ class GateCone
 		~GateCone();
 
 		size_t size();
-		std::set< std::string >::iterator begin();
-		std::set< std::string >::iterator end();
+		GateConeIterator begin();
+		GateConeIterator end();
+		std::string element_at( int );
 		void insert( std::string& );
 
 		// Set operations
@@ -32,12 +35,14 @@ class GateCone
 
 		bool intersecate( GateCone& );
 		bool empty();
+		bool has_element( const std::string& );
 
 		void print( const std::string&, FILE* = stdout );
 
 	private:
 		std::set< std::string > _cone;
 };
+
 
 #endif
 

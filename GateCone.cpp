@@ -35,6 +35,14 @@ std::set< std::string >::iterator GateCone::end()
 	return _cone.end();
 }
 
+std::string GateCone::element_at( int position )
+{
+	GateConeIterator result = _cone.begin();
+	while( (position--) > 0 )
+		result++;
+	return *result;
+}
+
 void GateCone::insert( std::string& entry )
 {
 	_cone.insert( entry );
@@ -134,6 +142,14 @@ bool GateCone::intersecate( GateCone& cone )
 bool GateCone::empty()
 {
 	return _cone.empty();
+}
+
+bool GateCone::has_element( const std::string& entry )
+{
+	if( _cone.find( entry ) != _cone.end() )
+		return true;
+	else
+		return false;
 }
 
 void GateCone::print( const std::string& component_name, FILE* file )

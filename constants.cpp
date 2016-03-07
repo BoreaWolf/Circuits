@@ -15,6 +15,9 @@ const std::string StringConstants::PATH_SIM_SOLUTION = StringConstants::PATH_INS
 const std::string StringConstants::FILE_INPUT_CONFIGURATION = StringConstants::PATH_INSTANCES + "input_configuration";
 const std::string StringConstants::FILE_FAILING_GATES = StringConstants::PATH_INSTANCES + "failing_gates";
 const std::string StringConstants::FILE_INPUT_DATA_DIAGNOSTIC = StringConstants::PATH_INSTANCES + "slide.sim_sol";
+const std::string StringConstants::FILE_OUTPUT_FOR_STACCATO = "staccato_input";
+const std::string StringConstants::FILE_OUTPUT_OF_STACCATO = "staccato_result";
 
 const std::string StringConstants::EXT_SIM_SOLUTION = ".sim_sol";
 
+const std::string StringConstants::EXEC_STACCATO = "./staccato_m/staccato/staccato";

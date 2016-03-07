@@ -21,8 +21,12 @@ class StringConstants
 		static const std::string FILE_INPUT_CONFIGURATION;
 		static const std::string FILE_FAILING_GATES;
 		static const std::string FILE_INPUT_DATA_DIAGNOSTIC;
+		static const std::string FILE_OUTPUT_FOR_STACCATO;
+		static const std::string FILE_OUTPUT_OF_STACCATO;
 
 		static const std::string EXT_SIM_SOLUTION;
+
+		static const std::string EXEC_STACCATO;
 };
 
 #endif

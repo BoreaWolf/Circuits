@@ -49,3 +49,5 @@ doctor
 
 # Instance files
 ./instances/*
+staccato_input
+staccato_result

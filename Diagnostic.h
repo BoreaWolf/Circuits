@@ -9,6 +9,7 @@
 #ifndef DIAGNOSTIC
 #define DIAGNOSTIC
 
+#include "./constants.h"
 #include "DiagnosticSolution.h"
 #include "GateCone.h"
 #include "GateValue.h"
@@ -79,6 +80,8 @@ class Diagnostic
 
 		int get_choice_combinations_number();
 		choice_list* get_ith_choice( int );
+
+		void mhs( cone_list& );
 		
 		// Attributes
 		std::string _name;

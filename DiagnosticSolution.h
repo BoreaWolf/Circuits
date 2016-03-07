@@ -10,6 +10,7 @@
 #define DIAGNOSTIC_SOLUTION
 
 #include <stdio.h>
+#include <vector>
 
 class DiagnosticSolution
 {
@@ -17,6 +18,11 @@ class DiagnosticSolution
 		DiagnosticSolution();
 		~DiagnosticSolution();
 
+		void save( std::vector< gate_list >&,
+				   gate_list&,
+				   gate_list&,
+				   gate_list&,
+				   gate_list& );
 	
 	private:
 };

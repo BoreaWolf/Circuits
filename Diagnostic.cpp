@@ -25,6 +25,8 @@ Diagnostic::Diagnostic( const std::string& input_filename )
 	_processing_okm = gate_list();
 	_processing_kom = gate_list();
 
+	_solution = DiagnosticSolution();
+
 	load( _name );
 
 #ifdef DEBUG
@@ -290,6 +292,10 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 		fprintf( stdout, "\n" );
 	}
 #endif
+
+	// Calling the computation of the Minimal Hitting Set on the resulting gate
+	// cones
+	mhs( result );
 }
 
 // Private methods
@@ -301,7 +307,7 @@ void Diagnostic::load( const std::string& input_filename )
 	{
 		fprintf( stdout, "Diagnostic::load: error in opening file '%s'\n",
 					input_filename.c_str() );
-		exit( 1 );
+		exit( -1 );
 	}
 
 	// Reading the file using a regex
@@ -658,4 +664,144 @@ choice_list* Diagnostic::get_ith_choice( int combination_number )
 #endif
 
 	return result;
+}
+
+void Diagnostic::mhs( cone_list& cone_collection )
+{
+	std::vector< gate_list > result = std::vector< gate_list >();
+
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::mhs Input Collection\n" );
+	for( size_t i = 0; i < cone_collection.size(); i++ )
+	{
+		fprintf( stdout, "\t" );
+		cone_collection.at( i ).print( "" );
+		fprintf( stdout, "\n" );
+	}
+#endif
+	// Printing the collection to a file as requested for the mhs solver
+	// Retrieving all the gates present in the collection
+	GateCone final_gates = GateCone();
+
+	for( size_t i = 0; i < cone_collection.size(); i++ )
+		final_gates = final_gates.join( cone_collection.at( i ) );
+
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::mhs Final Gates\n\t" );
+	final_gates.print( "Final Gates" );
+	fprintf( stdout, "\n" );
+#endif
+
+	// Creating the file for the mhs solver
+	FILE* file_output = fopen( 
+		StringConstants::FILE_OUTPUT_FOR_STACCATO.c_str(), "w" );
+	if( file_output == NULL )
+	{
+		fprintf( stdout, "Diagnostic::mhs Error creating '%s' file\n",
+					StringConstants::FILE_OUTPUT_FOR_STACCATO.c_str() );
+		exit( -1 );
+	}
+
+	// Cycling on the collection and final gates to create the matrix
+	for( cone_list::iterator cone_it = cone_collection.begin();
+		 cone_it != cone_collection.end();
+		 cone_it++ )
+	{
+		for( GateConeIterator gate_it = final_gates.begin();
+			 gate_it != final_gates.end();
+			 gate_it++ )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "%d ", cone_it->has_element( *gate_it ) );
+#endif
+			fprintf( file_output, "%d ", cone_it->has_element( *gate_it ) );
+		}
+
+#ifdef DEBUG
+		fprintf( stdout, "-\n" );
+#endif
+		fprintf( file_output, "-\n" );
+	}
+
+	fclose( file_output );
+
+	// Launching the staccato program
+	// Creating the command
+	char mhs_command[ 250 ];
+	sprintf( mhs_command, "%s -o %lu %s > %s",
+				StringConstants::EXEC_STACCATO.c_str(),
+				final_gates.size(),
+				StringConstants::FILE_OUTPUT_FOR_STACCATO.c_str(),
+				StringConstants::FILE_OUTPUT_OF_STACCATO.c_str() );
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::mhs Launching '%s': %s\n",
+				StringConstants::EXEC_STACCATO.c_str(),
+				mhs_command );
+#endif
+	std::system( mhs_command );	
+
+	// Reading the output file created
+	std::ifstream input_file( StringConstants::FILE_OUTPUT_OF_STACCATO,
+							  std::ifstream::in );
+	if( input_file == NULL )
+	{
+		fprintf( stdout, "Diagnostic::mhs Error in opening file '%s'\n",
+					StringConstants::FILE_OUTPUT_OF_STACCATO.c_str() );
+		exit( -1 );
+	}
+
+	std::string line;
+	gate_list current_result;
+
+	while( std::getline( input_file, line ) )
+	{
+		// Clearing the temporary value
+		current_result.clear();
+
+#ifdef DEBUG
+		fprintf( stdout, "Processing '%s': ", line.c_str() );
+#endif
+
+		while( line.find( "," ) != std::string::npos )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "'%s' ",
+					 line.substr( 1, line.find( "," ) - 1 ).c_str() );
+#endif
+			current_result.push_back( 
+				final_gates.element_at( 
+					std::stoi( line.substr( 1, line.find( "," ) - 1 ) ) - 1 ) );
+
+			line = line.substr( line.find( "," ) + 1 );
+		}
+
+#ifdef DEBUG
+		fprintf( stdout, "'%s'\n", line.substr( 1 ).c_str() );
+#endif
+
+		// Processing the last element
+		current_result.push_back( 
+			final_gates.element_at( 
+				std::stoi( line.substr( 1 ) ) - 1 ) );
+
+		result.push_back( current_result );
+	}
+
+	//	_solution.save( result, 
+	//					_processing_ok, 
+	//					_processing_ko, 
+	//					_processing_okm,
+	//					_processing_kom );
+
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::mhs Result\n" );
+	for( size_t i = 0; i < result.size(); i++ )
+	{
+		fprintf( stdout, "\t{ " );
+		for( size_t j = 0; j < result.at( i ).size(); j++ )
+			fprintf( stdout, "%s ", result.at( i ).at( j ).c_str() );
+		fprintf( stdout, "}\n" );
+	}
+#endif
+	
 }

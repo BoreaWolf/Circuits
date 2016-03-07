@@ -9,7 +9,7 @@
 #include "DiagnosticSolution.h"
 
 #ifndef DEBUG
-#define DEBUG
+//	#define DEBUG
 #endif
 
 DiagnosticSolution::DiagnosticSolution()
