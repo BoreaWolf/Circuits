@@ -160,7 +160,9 @@ void GateCone::print( const std::string& component_name, FILE* file )
 	// at the end I will have an empty list of components
 
 	fprintf( file, "Cone( %s ) = {", component_name.c_str() );
-	for( std::set< std::string >::iterator i = _cone.begin(); i != _cone.end(); i++ )
+	for( std::set< std::string >::iterator i = _cone.begin();
+		 i != _cone.end();
+		 i++ )
 	{
 		// Just priting details
 		if( i != _cone.begin() )

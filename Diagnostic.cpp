@@ -9,7 +9,7 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-	#define DEBUG
+//	#define DEBUG
 #endif
 
 Diagnostic::Diagnostic( const std::string& input_filename )
@@ -72,8 +72,7 @@ void Diagnostic::all_diagnoses()
 	value_map okm_configuration = value_map();
 	GateValue value_temp;
 
-	//	for( int i = 0; i < get_ok_subset_number(); i++ )
-	int i = 3;
+	for( int i = 0; i < get_ok_subset_number(); i++ )
 	{
 		// Resetting the OKM configuration so I can build a new one based on
 		// the current subset
@@ -120,9 +119,6 @@ void Diagnostic::all_diagnoses()
 		// value then it needs to be processed
 		if( check_cone_intersection( okm_configuration ) )
 			diagnoses_one_config();
-
-		//	_solution.join( diagnoses_one_config( current_subset ) );
-
 	}
 }
 
@@ -175,6 +171,11 @@ void Diagnostic::diagnoses_one_config()
 	}
 #endif
 
+	// If there are not choice combinations I'll go on anyway and process the
+	// MHS of the current cone_collection
+	if( get_choice_combinations_number() == 0 )
+		diagnoses_one_choice( cone_collection, choices );
+
 	// Creating all the possible combinations between OKM and KO so, in the next
 	// step, I can determine which are the KOM gates
 	// I'll keep going with the diagnoses only if the number of KOM selected are
@@ -216,28 +217,6 @@ void Diagnostic::diagnoses_one_config()
 void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 									   choice_list* choices )
 {
-#ifdef DEBUG
-	fprintf( stdout, "Diagnostic::diagnoses_one_choice sbrappappero\n" );
-
-	fprintf( stdout, "Diagnostic::diagnoses_one_choice Cone Collection A\n" );
-	for( cone_map::iterator it = cone_collection.begin();
-		 it != cone_collection.end();
-		 it++ )
-	{
-		fprintf( stdout, "\t'%s': ", it->first.c_str() );
-		it->second.print( it->first );
-		fprintf( stdout, "\n" );
-	}
-
-	fprintf( stdout, "Diagnostic::diagnoses_one_choice Choices: " );
-	for( size_t i = 0; i < choices->size(); i++ )
-		fprintf( stdout, "(%s, %s) ",
-					choices->at( i ).first.c_str(),
-					choices->at( i ).second.c_str() );
-	fprintf( stdout, "\n" );
-
-#endif
-
 	cone_list result = cone_list();
 	GateCone complement, intersection;
 
@@ -258,12 +237,12 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 		// so I interrupt the procedure
 		if( complement.empty() || intersection.empty() )
 		{
-			fprintf( stdout, "Diagnostic::diagnoses_one_choice Stopping procedure\n" );
+			fprintf( stdout, "Diagnostic::diagnoses_one_choice Stopping procedure: intersection or complement sets are empty\n" );
 			return;
 		}
 
 #ifdef DEBUG
-		fprintf( stdout, "Choice (%s, %s):\n\t",
+		fprintf( stdout, "Diagnostic::diagnoses_one_choice Choice (%s, %s):\n\t",
 					choices->at( i ).first.c_str(),
 					choices->at( i ).second.c_str() );
 		complement.print( "Complement" );
@@ -288,7 +267,7 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 	for( size_t i = 0; i < result.size(); i++ )
 	{
 		fprintf( stdout, "\t" );
-		result.at( i ).print( "" );
+		result.at( i ).print( std::to_string( i ) );
 		fprintf( stdout, "\n" );
 	}
 #endif
@@ -296,6 +275,11 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 	// Calling the computation of the Minimal Hitting Set on the resulting gate
 	// cones
 	mhs( result );
+}
+
+void Diagnostic::print_solutions( FILE* file )
+{
+	_solution.print( file );
 }
 
 // Private methods
@@ -580,30 +564,22 @@ void Diagnostic::update_processing_vector( value_map& current_status )
 		}
 	}
 
+#ifdef DEBUG
 	print_processing_status();
+#endif
 }
 
 void Diagnostic::print_processing_status()
 {
-#ifdef DEBUG
-	fprintf( stdout, "Diagnostic::print_processing_vector current status\n" );
-	fprintf( stdout, "\tOK: " );
-	for( size_t i = 0; i < _processing_ok.size(); i++ )
-		fprintf( stdout, "'%s' ", _processing_ok.at( i ).c_str() );
-
-	fprintf( stdout, "\n\tKO: " );
-	for( size_t i = 0; i < _processing_ko.size(); i++ )
-		fprintf( stdout, "'%s' ", _processing_ko.at( i ).c_str() );
-
-	fprintf( stdout, "\n\tOKM: " );
-	for( size_t i = 0; i < _processing_okm.size(); i++ )
-		fprintf( stdout, "'%s' ", _processing_okm.at( i ).c_str() );
-
-	fprintf( stdout, "\n\tKOM: " );
-	for( size_t i = 0; i < _processing_kom.size(); i++ )
-		fprintf( stdout, "'%s' ", _processing_kom.at( i ).c_str() );
+	fprintf( stdout, "Diagnostic::print_processing_vector current status\n\t" );
+	print_gatelist( _processing_ok, "OK", stdout );
+	fprintf( stdout, "\n\t" );
+	print_gatelist( _processing_ko, "KO", stdout );
+	fprintf( stdout, "\n\t" );
+	print_gatelist( _processing_okm, "OKM", stdout );
+	fprintf( stdout, "\n\t" );
+	print_gatelist( _processing_kom, "KOM", stdout );
 	fprintf( stdout, "\n" );
-#endif
 }
 
 int Diagnostic::get_choice_combinations_number()
@@ -670,15 +646,6 @@ void Diagnostic::mhs( cone_list& cone_collection )
 {
 	std::vector< gate_list > result = std::vector< gate_list >();
 
-#ifdef DEBUG
-	fprintf( stdout, "Diagnostic::mhs Input Collection\n" );
-	for( size_t i = 0; i < cone_collection.size(); i++ )
-	{
-		fprintf( stdout, "\t" );
-		cone_collection.at( i ).print( "" );
-		fprintf( stdout, "\n" );
-	}
-#endif
 	// Printing the collection to a file as requested for the mhs solver
 	// Retrieving all the gates present in the collection
 	GateCone final_gates = GateCone();
@@ -702,11 +669,19 @@ void Diagnostic::mhs( cone_list& cone_collection )
 		exit( -1 );
 	}
 
+#ifdef DEBUG
+	fprintf( stdout, "Diagnostic::mhs Staccato input file\n" );
+#endif
+
 	// Cycling on the collection and final gates to create the matrix
 	for( cone_list::iterator cone_it = cone_collection.begin();
 		 cone_it != cone_collection.end();
 		 cone_it++ )
 	{
+#ifdef DEBUG
+		fprintf( stdout, "\t" );
+#endif
+
 		for( GateConeIterator gate_it = final_gates.begin();
 			 gate_it != final_gates.end();
 			 gate_it++ )
@@ -723,6 +698,7 @@ void Diagnostic::mhs( cone_list& cone_collection )
 		fprintf( file_output, "-\n" );
 	}
 
+	// Closing the file
 	fclose( file_output );
 
 	// Launching the staccato program
@@ -738,6 +714,8 @@ void Diagnostic::mhs( cone_list& cone_collection )
 				StringConstants::EXEC_STACCATO.c_str(),
 				mhs_command );
 #endif
+
+	// Executing staccato
 	std::system( mhs_command );	
 
 	// Reading the output file created
@@ -751,15 +729,16 @@ void Diagnostic::mhs( cone_list& cone_collection )
 	}
 
 	std::string line;
-	gate_list current_result;
+	gate_list current_result = gate_list();
 
+	// Cycling on every line of the file and reading the result
 	while( std::getline( input_file, line ) )
 	{
 		// Clearing the temporary value
 		current_result.clear();
 
 #ifdef DEBUG
-		fprintf( stdout, "Processing '%s': ", line.c_str() );
+		fprintf( stdout, "Diagnostic::mhs Processing '%s': ", line.c_str() );
 #endif
 
 		while( line.find( "," ) != std::string::npos )
@@ -768,10 +747,12 @@ void Diagnostic::mhs( cone_list& cone_collection )
 			fprintf( stdout, "'%s' ",
 					 line.substr( 1, line.find( "," ) - 1 ).c_str() );
 #endif
+			// Adding the corresponding final gate to the current result
 			current_result.push_back( 
 				final_gates.element_at( 
 					std::stoi( line.substr( 1, line.find( "," ) - 1 ) ) - 1 ) );
 
+			// Going to the successive element of the line
 			line = line.substr( line.find( "," ) + 1 );
 		}
 
@@ -784,23 +765,32 @@ void Diagnostic::mhs( cone_list& cone_collection )
 			final_gates.element_at( 
 				std::stoi( line.substr( 1 ) ) - 1 ) );
 
+		// Saving the current result
 		result.push_back( current_result );
 	}
 
-	//	_solution.save( result, 
-	//					_processing_ok, 
-	//					_processing_ko, 
-	//					_processing_okm,
-	//					_processing_kom );
+	// Closing the file
+	input_file.close();
+
+	// Saving the result in the solution
+	_solution.save( result, 
+					_processing_ok, 
+					_processing_ko, 
+					_processing_okm,
+					_processing_kom );
 
 #ifdef DEBUG
 	fprintf( stdout, "Diagnostic::mhs Result\n" );
 	for( size_t i = 0; i < result.size(); i++ )
 	{
-		fprintf( stdout, "\t{ " );
+		fprintf( stdout, "\t{" );
 		for( size_t j = 0; j < result.at( i ).size(); j++ )
-			fprintf( stdout, "%s ", result.at( i ).at( j ).c_str() );
-		fprintf( stdout, "}\n" );
+		{
+			if( j != 0 )
+				fprintf( stdout, "," );
+			fprintf( stdout, " %s", result.at( i ).at( j ).c_str() );
+		}
+		fprintf( stdout, " }\n" );
 	}
 #endif
 	

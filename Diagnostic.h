@@ -66,7 +66,8 @@ class Diagnostic
 		// Calculating the final diagnoses solution
 		void diagnoses_one_choice( cone_map&, choice_list* );
 
-	
+		void print_solutions( FILE* = stdout );
+
 	private:
 		// Methods
 		void load( const std::string& );

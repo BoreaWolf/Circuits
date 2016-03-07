@@ -42,6 +42,7 @@ int main( int argc, char ** argv )
 
 	Diagnostic dia( input_data );
 	dia.solve( input_diagnostic );
+	dia.print_solutions();
 
 	fprintf( stdout, "Yeah! Diagnostics done! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n" );
 	

@@ -27,3 +27,19 @@ DiagnosticSolution::~DiagnosticSolution()
 	fflush( stdout );
 #endif
 }
+
+void DiagnosticSolution::save( std::vector< gate_list >& mhs,
+							   gate_list& ok,
+							   gate_list& ko,
+							   gate_list& okm,
+							   gate_list& kom )
+{
+	_solutions.push_back( SolutionData( ok, ko, okm, kom, mhs ) );
+}
+
+void DiagnosticSolution::print( FILE* file )
+{
+	fprintf( file, "DiagnosticSolution::print Solutions\n" );
+	for( size_t i = 0; i < _solutions.size(); i++ )
+		_solutions.at( i ).print( i, file );
+}
