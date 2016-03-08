@@ -9,7 +9,7 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-	#define DEBUG
+//	#define DEBUG
 #endif
 
 Diagnostic::Diagnostic( const std::string& input_filename )

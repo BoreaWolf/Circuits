@@ -10,9 +10,9 @@
 #define DIAGNOSTIC
 
 #include "./constants.h"
-#include "DiagnosticSolution.h"
-#include "GateCone.h"
-#include "GateValue.h"
+#include "./DiagnosticSolution.h"
+#include "./GateCone.h"
+#include "./GateValue.h"
 
 #include <algorithm>
 #include <fstream>

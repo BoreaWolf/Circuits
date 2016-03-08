@@ -29,6 +29,23 @@ int main( int argc, char ** argv )
 		 *  - argv[ 2 ]: input diagnostic
 		 */
 		input_data = argv[ 1 ];
+
+		// Checking the integrity of the DiagnosesType
+		if( ( *( argv[ 2 ] ) - '0' ) < 0 ||
+			( *( argv[ 2 ] ) - '0' ) > 4 )
+		{
+			fprintf( stdout, "Diagnostic requested not valid!\n" );
+			fprintf( stdout, "These are the possible options:\n" );
+			for( int i = static_cast< int >( DiagnosesType::ALL_DIAGNOSES );
+				 i <= static_cast< int >( DiagnosesType::KOM_MASKING );
+				 i++ )
+				fprintf( stdout, "\t%d) %s\n",
+							i,
+							to_string( static_cast< DiagnosesType >( i ) ) );
+
+			exit( -1 );
+		}
+
 		input_diagnostic = static_cast< DiagnosesType >( *( argv[ 2 ] ) - '0' );
 	}
 	else
