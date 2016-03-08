@@ -25,7 +25,6 @@
 // Type definitions
 typedef std::map< std::string, GateCone > cone_map;
 typedef std::map< std::string, GateValue > value_map;
-typedef std::vector< std::string > gate_list;
 typedef std::pair< std::string, std::string > choice;
 typedef std::vector< choice > choice_list;
 typedef std::vector< GateCone > cone_list;
@@ -35,8 +34,8 @@ enum class DiagnosesType : int
 	ALL_DIAGNOSES = 0,
 	NO_MASKING = 1,
 	ALL_MASKING = 2,
-	OK_MASKING = 3,
-	KO_MASKING = 4
+	OKM_MASKING = 3,
+	KOM_MASKING = 4
 };
 
 inline const char* to_string( DiagnosesType v )
@@ -46,8 +45,8 @@ inline const char* to_string( DiagnosesType v )
 		case DiagnosesType::ALL_DIAGNOSES:	return "All Diagnoses";
 		case DiagnosesType::NO_MASKING:		return "No Masking Diagnoses";
 		case DiagnosesType::ALL_MASKING:	return "All Masking Diagnoses";
-		case DiagnosesType::OK_MASKING:		return "Ok Masking Diagnoses";
-		case DiagnosesType::KO_MASKING:		return "Ko Maskning Diagnoses";
+		case DiagnosesType::OKM_MASKING:	return "OKM Masking Diagnoses";
+		case DiagnosesType::KOM_MASKING:	return "KOM Masking Diagnoses";
     }
 }
 
@@ -57,12 +56,12 @@ class Diagnostic
 		Diagnostic( const std::string& );
 		~Diagnostic();
 
-		void solve( DiagnosesType );
+		void solve( DiagnosesType& );
 
 		// Setting some output values to OKM
-		void all_diagnoses();
+		void all_diagnoses( DiagnosesType& );
 		// Setting some other output values to KOM
-		void diagnoses_one_config();
+		void diagnoses_one_config( DiagnosesType& );
 		// Calculating the final diagnoses solution
 		void diagnoses_one_choice( cone_map&, choice_list* );
 

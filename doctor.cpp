@@ -37,6 +37,10 @@ int main( int argc, char ** argv )
 		// instances and solve them
 		input_data = StringConstants::FILE_INPUT_DATA_DIAGNOSTIC;
 		input_diagnostic = DiagnosesType::ALL_DIAGNOSES;
+		//	input_diagnostic = DiagnosesType::NO_MASKING;
+		//	input_diagnostic = DiagnosesType::ALL_MASKING;
+		//	input_diagnostic = DiagnosesType::OKM_MASKING;
+		//	input_diagnostic = DiagnosesType::KOM_MASKING;
 		// Create an enum to define diagnostic types
 	}
 

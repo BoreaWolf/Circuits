@@ -9,7 +9,7 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-//	#define DEBUG
+	#define DEBUG
 #endif
 
 Diagnostic::Diagnostic( const std::string& input_filename )
@@ -43,30 +43,17 @@ Diagnostic::~Diagnostic()
 #endif
 }
 
-void Diagnostic::solve( DiagnosesType diagnoses_type )
+void Diagnostic::solve( DiagnosesType& diagnoses_type )
 {
 	fprintf( stdout, "Diagnostic::solve Solving '%s'\n",
 				_name.c_str() );
 
 	fprintf( stdout, "'%s' requested\n", to_string( diagnoses_type ) );
 
-	switch( diagnoses_type )
-	{
-		case DiagnosesType::ALL_DIAGNOSES:
-			all_diagnoses();
-			break;
-		case DiagnosesType::NO_MASKING:
-			break;
-		case DiagnosesType::ALL_MASKING:
-			break;
-		case DiagnosesType::OK_MASKING:
-			break;
-		case DiagnosesType::KO_MASKING:
-			break;
-	}
+	all_diagnoses( diagnoses_type );
 }
 
-void Diagnostic::all_diagnoses()
+void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 {
 	gate_list* current_subset;
 	value_map okm_configuration = value_map();
@@ -114,15 +101,39 @@ void Diagnostic::all_diagnoses()
 
 		update_processing_vector( okm_configuration );
 
+		// Stopping the procedure if the configuration created doesn't need to
+		// be processed
+		// NO_MASKING check
+		if( diagnoses_type == DiagnosesType::NO_MASKING && 
+			( _processing_okm.size() > 0 || _processing_kom.size() > 0 ) )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "Diagnostic::all_diagnoses %s requested, skipping the current configuration because it has a masking\n", to_string( diagnoses_type ) );
+#endif
+			continue;
+		}
+
+		// ALL, OKM and KOM MASKING check
+		if( ( diagnoses_type == DiagnosesType::ALL_MASKING || 
+			  diagnoses_type == DiagnosesType::OKM_MASKING || 
+			  diagnoses_type == DiagnosesType::KOM_MASKING ) &&
+			_processing_okm.size() == 0 )
+		{
+#ifdef DEBUG
+			fprintf( stdout, "Diagnostic::all_diagnoses %s requested, skipping the current configuration because it doesn't have OKM masking\n", to_string( diagnoses_type ) );
+#endif
+			continue;
+		}
+
 		// Checking if the current subset needs to be processed:
 		// if the cones of the OK values do intersecate with a cone of a KO
 		// value then it needs to be processed
 		if( check_cone_intersection( okm_configuration ) )
-			diagnoses_one_config();
+			diagnoses_one_config( diagnoses_type );
 	}
 }
 
-void Diagnostic::diagnoses_one_config()
+void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 {
 	GateCone ok_cones = GateCone();
 	cone_map cone_collection = cone_map();
@@ -171,46 +182,60 @@ void Diagnostic::diagnoses_one_config()
 	}
 #endif
 
-	// If there are not choice combinations I'll go on anyway and process the
-	// MHS of the current cone_collection
-	if( get_choice_combinations_number() == 0 )
+	// KOM_MASKING check
+	if( diagnoses_type == DiagnosesType::KOM_MASKING &&
+		get_choice_combinations_number() == 0 )
+	{
+		fprintf( stdout, "Diagnostic::diagnoses_one_config %s requested, skipping the current configuration because it can't create any KOM gates\n", to_string( diagnoses_type ) );
+		return;
+	}
+
+	// Skipping the no KOM solution when the diagnoses request KOM gates
+	if( diagnoses_type != DiagnosesType::KOM_MASKING )
+		// Processing the configuration without any KOM gates set
 		diagnoses_one_choice( cone_collection, choices );
 
-	// Creating all the possible combinations between OKM and KO so, in the next
-	// step, I can determine which are the KOM gates
-	// I'll keep going with the diagnoses only if the number of KOM selected are
-	// less or equal than the number of OKM gates (suggested improvement)
-	for( int i = 0; i < get_choice_combinations_number(); i++ )
+	// Skipping the combinations with KOM gates if the diagnoses requested is
+	// only for OKM
+	if( diagnoses_type != DiagnosesType::OKM_MASKING )
 	{
-		// Restoring KO and KOM vectors
-		_processing_kom.clear();
-		_processing_ko = _ko_gates;
+		// Passing to the KOM combinations
+		// Creating all the possible combinations between OKM and KO so, in the next
+		// step, I can determine which are the KOM gates
+		// I'll keep going with the diagnoses only if the number of KOM selected are
+		// less or equal than the number of OKM gates (suggested improvement)
+		for( int i = 0; i < get_choice_combinations_number(); i++ )
+		{
+			// Restoring KO and KOM vectors
+			_processing_kom.clear();
+			_processing_ko = _ko_gates;
 
-		// Retrieving the ith combination of choices
-		choices = get_ith_choice( i );
+			// Retrieving the ith combination of choices
+			choices = get_ith_choice( i );
 
-		// Updating the KO list accordingly with the set KOM gates
-		for( size_t i = 0; i < _processing_kom.size(); i++ )
-			_processing_ko.erase( std::find( _processing_ko.begin(),
-											 _processing_ko.end(),
-											 _processing_kom.at( i ) ) );
-		
+			// Updating the KO list accordingly with the set KOM gates
+			for( size_t i = 0; i < _processing_kom.size(); i++ )
+				_processing_ko.erase( std::find( _processing_ko.begin(),
+												 _processing_ko.end(),
+												 _processing_kom.at( i ) ) );
+			
 #ifdef DEBUG
-		fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
-		for( size_t i = 0; i < choices->size(); i++ )
-			fprintf( stdout, "(%s, %s) ",
-						choices->at( i ).first.c_str(),
-						choices->at( i ).second.c_str() );
-		fprintf( stdout, "\n" );
+			fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
+			for( size_t i = 0; i < choices->size(); i++ )
+				fprintf( stdout, "(%s, %s) ",
+							choices->at( i ).first.c_str(),
+							choices->at( i ).second.c_str() );
+			fprintf( stdout, "\n" );
 
-		print_processing_status();
+			print_processing_status();
 #endif
 
-		// Improvement suggested from the slide: processing only the choices
-		// where there are less or equal KOM selected than OKM 
-		// KOM.size() <= OKM.size()
-		if( _processing_kom.size() <= _processing_okm.size() )
-			diagnoses_one_choice( cone_collection, choices );
+			// Improvement suggested from the slide: processing only the choices
+			// where there are less or equal KOM selected than OKM 
+			// KOM.size() <= OKM.size()
+			if( _processing_kom.size() <= _processing_okm.size() )
+				diagnoses_one_choice( cone_collection, choices );
+		}
 	}
 }
 
@@ -237,7 +262,9 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 		// so I interrupt the procedure
 		if( complement.empty() || intersection.empty() )
 		{
+#ifdef DEBUG
 			fprintf( stdout, "Diagnostic::diagnoses_one_choice Stopping procedure: intersection or complement sets are empty\n" );
+#endif
 			return;
 		}
 
@@ -261,6 +288,18 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 	for( size_t i = 0; i < _processing_ko.size(); i++ )
 		result.push_back( 
 			cone_collection.find( _processing_ko.at( i ) )->second );
+
+	// If no choices are given, so no KOM are set, I add also every okm to the
+	// Collection B
+	if( choices->size() == 0 )
+	{
+#ifdef DEBUG
+		fprintf( stdout, "Diagnostic::diagnoses_one_chioce No choices, adding OKM to Collection B\n" );
+#endif
+		for( size_t i = 0; i < _processing_okm.size(); i++ )
+			result.push_back(
+				cone_collection.find( _processing_okm.at( i ) )->second );
+	}
 	
 #ifdef DEBUG
 	fprintf( stdout, "Diagnostic::diagnoses_one_choice Collection B\n" );
