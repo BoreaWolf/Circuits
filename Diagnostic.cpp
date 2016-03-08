@@ -27,6 +27,9 @@ Diagnostic::Diagnostic( const std::string& input_filename )
 
 	_solution = DiagnosticSolution();
 
+	_execution_time = 0;
+	_mhs_processing_time = 0;
+
 	load( _name );
 
 #ifdef DEBUG
@@ -45,12 +48,23 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::solve( DiagnosesType& diagnoses_type )
 {
+	// Keeping track of the time needed to calcualte the mhs
+	std::chrono::high_resolution_clock::time_point exec_start = 
+		std::chrono::high_resolution_clock::now();
+
 	fprintf( stdout, "Diagnostic::solve Solving '%s'\n",
 				_name.c_str() );
 
-	fprintf( stdout, "'%s' requested\n", to_string( diagnoses_type ) );
+	fprintf( stdout, "'%s' requested", to_string( diagnoses_type ) );
 
 	all_diagnoses( diagnoses_type );
+
+	fprintf( stdout, "\n" );
+
+	// Updating the processing time
+	_execution_time =
+		std::chrono::duration_cast< time_um >
+			( std::chrono::high_resolution_clock::now() - exec_start ) .count();
 }
 
 void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
@@ -318,7 +332,18 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 
 void Diagnostic::print_solutions( FILE* file )
 {
-	_solution.print( file );
+	fprintf( file, "Diagnostic::print_solutions\n" );
+
+	fprintf( file, "\tSolutions found %d\n", _solution.size() );
+	// If I receive a real external file I print all the solutions found
+	if( file != stdout )
+		_solution.print( file );
+
+	fprintf( file, "\tProcessing times:\n" );
+	fprintf( file, "\t\tExecution: %.5f milliseconds\n", _execution_time );
+	fprintf( file, "\t\tMHS: %.5f milliseconds\n", _mhs_processing_time );
+	fprintf( file, "\t\tNon MHS: %.5f milliseconds\n", 
+			 ( _execution_time - _mhs_processing_time ) );
 }
 
 // Private methods
@@ -754,8 +779,17 @@ void Diagnostic::mhs( cone_list& cone_collection )
 				mhs_command );
 #endif
 
+	// Keeping track of the time needed to calcualte the mhs
+	std::chrono::high_resolution_clock::time_point mhs_start = 
+		std::chrono::high_resolution_clock::now();
+
 	// Executing staccato
 	std::system( mhs_command );	
+
+	// Updating the processing time
+	_mhs_processing_time += 
+		std::chrono::duration_cast< time_um >
+			( std::chrono::high_resolution_clock::now() - mhs_start ) .count();
 
 	// Reading the output file created
 	std::ifstream input_file( StringConstants::FILE_OUTPUT_OF_STACCATO,

@@ -69,15 +69,15 @@ struct SolutionData
 		fprintf( file, "\n\tMHS:\n" );
 		for( size_t i = 0; i < _mhs.size(); i++ )
 		{
-			fprintf( stdout, "\t\t%lu: {", i );
+			fprintf( file, "\t\t%lu: {", i );
 			for( size_t j = 0; j < _mhs.at( i ).size(); j++ )
 			{
 				if( j != 0 )
-					fprintf( stdout, "," );
-				fprintf( stdout, " %s", _mhs.at( i ).at( j ).c_str() );
+					fprintf( file, "," );
+				fprintf( file, " %s", _mhs.at( i ).at( j ).c_str() );
 			}
 
-			fprintf( stdout, " }\n" );
+			fprintf( file, " }\n" );
 		}
 	}
 };
@@ -88,6 +88,8 @@ class DiagnosticSolution
 	public:
 		DiagnosticSolution();
 		~DiagnosticSolution();
+
+		int size();
 
 		void save( std::vector< gate_list >&,
 				   gate_list&,

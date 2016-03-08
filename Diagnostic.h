@@ -10,11 +10,13 @@
 #define DIAGNOSTIC
 
 #include "./constants.h"
+#include "./DiagnosesType.h"
 #include "./DiagnosticSolution.h"
 #include "./GateCone.h"
 #include "./GateValue.h"
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <regex>
 #include <map>
@@ -28,27 +30,7 @@ typedef std::map< std::string, GateValue > value_map;
 typedef std::pair< std::string, std::string > choice;
 typedef std::vector< choice > choice_list;
 typedef std::vector< GateCone > cone_list;
-
-enum class DiagnosesType : int
-{
-	ALL_DIAGNOSES = 0,
-	NO_MASKING = 1,
-	ALL_MASKING = 2,
-	OKM_MASKING = 3,
-	KOM_MASKING = 4
-};
-
-inline const char* to_string( DiagnosesType v )
-{
-    switch( v )
-    {
-		case DiagnosesType::ALL_DIAGNOSES:	return "All Diagnoses";
-		case DiagnosesType::NO_MASKING:		return "No Masking Diagnoses";
-		case DiagnosesType::ALL_MASKING:	return "All Masking Diagnoses";
-		case DiagnosesType::OKM_MASKING:	return "OKM Masking Diagnoses";
-		case DiagnosesType::KOM_MASKING:	return "KOM Masking Diagnoses";
-    }
-}
+typedef std::chrono::milliseconds time_um;
 
 class Diagnostic
 {
@@ -101,6 +83,10 @@ class Diagnostic
 		gate_list _processing_kom;
 
 		DiagnosticSolution _solution;
+
+		// Times
+		double _execution_time;
+		double _mhs_processing_time;
 };
 
 #endif

@@ -28,6 +28,11 @@ DiagnosticSolution::~DiagnosticSolution()
 #endif
 }
 
+int DiagnosticSolution::size()
+{
+	return _solutions.size();
+}
+
 void DiagnosticSolution::save( std::vector< gate_list >& mhs,
 							   gate_list& ok,
 							   gate_list& ko,
@@ -35,6 +40,9 @@ void DiagnosticSolution::save( std::vector< gate_list >& mhs,
 							   gate_list& kom )
 {
 	_solutions.push_back( SolutionData( ok, ko, okm, kom, mhs ) );
+	// User interface stuff
+	fprintf( stdout, "." );
+	fflush( stdout );
 }
 
 void DiagnosticSolution::print( FILE* file )

@@ -67,5 +67,5 @@ void LogicalGate::calculate_cone()
 	_cone.insert( _name );
 	// Cycling on the inputs and adding them only if they are Gates
 	for( size_t i = 0; i < _inputs.size(); i++ )
-		_cone.join( _inputs.at( i )->get_cone() );
+		_cone = _cone.join( _inputs.at( i )->get_cone() );
 }

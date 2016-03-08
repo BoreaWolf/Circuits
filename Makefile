@@ -18,7 +18,7 @@ OBJ_SIM = circuit.o circuit_comparison.o circuit_solution.o component.o \
 OBJ_DIA = constants.o diagnostic.o diagnostic_solution.o gate_cone.o
 
 HEADERS_SIM = GateStatus.h
-HEADERS_DIA = GateValue.h
+HEADERS_DIA = DiagnosesType.h GateValue.h
 
 # Dependencies
 # Main programs

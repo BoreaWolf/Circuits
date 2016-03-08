@@ -65,6 +65,34 @@ int main( int argc, char ** argv )
 	dia.solve( input_diagnostic );
 	dia.print_solutions();
 
+	// Creating the output file depending on the input files received
+	// Retrieving the file name
+	std::string solution_filename = 
+		input_data.substr(
+			input_data.find_last_of( "/" ) + 1 );
+
+	// Removing the current file extension
+	solution_filename = 
+		solution_filename.substr( 
+			0,
+			(
+				solution_filename.size() -
+				solution_filename.substr(
+					solution_filename.find_last_of( "." ) ).size()
+			) );
+
+	// Composing the final file name
+	solution_filename = 
+		StringConstants::PATH_DIA_SOLUTION +
+		solution_filename + 
+		StringConstants::EXT_DIA_SOLUTION;
+
+	// Writing to file
+	FILE* solution_file = fopen( solution_filename.c_str(), "w" );
+	dia.print_solutions( solution_file );
+	fclose( solution_file );
+	
+
 	fprintf( stdout, "Yeah! Diagnostics done! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n" );
 	
 	return 0;

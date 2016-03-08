@@ -17,6 +17,7 @@ class StringConstants
 		static const std::string PATH_INSTANCES;
 		static const std::string PATH_CIRCUITS;
 		static const std::string PATH_SIM_SOLUTION;
+		static const std::string PATH_DIA_SOLUTION;
 
 		static const std::string FILE_INPUT_CONFIGURATION;
 		static const std::string FILE_FAILING_GATES;
@@ -25,6 +26,7 @@ class StringConstants
 		static const std::string FILE_OUTPUT_OF_STACCATO;
 
 		static const std::string EXT_SIM_SOLUTION;
+		static const std::string EXT_DIA_SOLUTION;
 
 		static const std::string EXEC_STACCATO;
 };
