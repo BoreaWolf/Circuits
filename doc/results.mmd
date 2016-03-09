@@ -12,10 +12,11 @@ successiva esecuzione.
 Uno script (*create_instance*), ricevendo in ingresso il file descrittivo di un
 circuito, genera il file relativo alla configurazione iniziale dei terminali
 d'ingresso ed il file nel quale vengono indicate le porte con dei guasti; un
-secondo script (*solve_circuit*) lancia il programma di simulazione su un
-circuito fornito in ingresso, dopo aver generato i dati ad esso necessari
-utilizzando lo script precedente; infine un ultimo script (*solve_all_circuit*)
-lancia il secondo script una volta per istanza nota.
+secondo script (*solve_circuit*) lancia il programma di simulazione seguito dal
+programma di diagnostica su un circuito fornito in ingresso, dopo aver generato
+i dati ad esso necessari utilizzando lo script precedente; infine un ultimo
+script (*solve_all_circuit*) lancia il secondo script un numero variabile di
+volte per istanza nota.
 
 ## Simulazione
 
@@ -33,7 +34,6 @@ aumenta il tempo d'esecuzione del programma in modo lineare
 	\label{fig:test_tempi_simulazione}
 \end{figure}
 -->
-
 
 ## Diagnostica
 

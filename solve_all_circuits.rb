@@ -2,7 +2,7 @@
 
 # Authors: Riccardo Orizio
 # Date: 1 March 2016
-# A program that solves every circuit instance known
+# A program that solves every circuit instance known a given amount of times
 
 require_relative "constants.rb"
 
@@ -15,8 +15,19 @@ circuit_files = circuit_files.zip( circuit_files.map{ |x| x[ /\d+/ ].to_i } )
 							 .sort_by( &:last )
 							 .collect{ |x| x[ 0 ] }
 
+# Solving the same problem n times
+tests_number = ( ARGV[ 0 ] || 5 ).to_i
+# I'm also passing the type of Diagnoses the I want to do
+# The types are:
+#  - ALL_DIAGNOSES
+#  - NO_MASKING
+#  - ALL_MASKING
+#  - OKM_MASKING
+#  - KOM_MASKING
 circuit_files.each do |circuit|
-	system( "#{EXEC_SOLVE_CIRCUIT} #{circuit}" )
+	(1..tests_number).each do
+		system( "#{EXEC_SOLVE_CIRCUIT} #{circuit} ALL_DIAGNOSES" )
+	end
 end
 
-puts "#{circuit_files.size} circuits have been solved in #{Time.now - time_begin} seconds. ʅʕ•ᴥ•ʔʃ\n"
+puts "#{circuit_files.size * tests_number} circuits have been solved in #{Time.now - time_begin} seconds. ʅʕ•ᴥ•ʔʃ\n"

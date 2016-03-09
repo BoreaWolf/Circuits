@@ -1,6 +1,209 @@
 Diagnostica
 ===========
 
-La seconda parte del progetto riguarda diagnosticare particolari richieste
-fatte dall'utente, diagnostiche che verranno svolte su circuiti noti e già
-processati nella parte di simulazione.
+La seconda parte del progetto riguarda la computazione di diagnosi su circuiti
+descritti attraverso i coni relativi alle proprie uscite principali. Nel nostro
+caso verranno utilizzati i risultati della parte di simulazione, ma nulla vieta
+di fornire altri file derivanti da fonti diverse.
+
+Di seguito verranno mostrato come è stata affrontata questa parte, ponendo
+particolare attenzione a quali strutture dati sono state introdotte e quali
+metodologie sono state ritenute più opportune per risolvere le varie difficoltà
+incontrate.
+
+## Strutture Dati
+
+La struttura dati fulcro per affrontare al meglio questa parte è la classe
+*GateCone* (classe usata anche nella parte di simulazione), adattata ed ampliata
+per poter svolgere tutte le operazioni richieste. Questa classe si appoggia su
+un <!--\emph{set<string>}--> che rappresenta un cono di una particolare porta
+logica.  Il concetto di cono è fondamentale per tutta questa parte, anche se
+scendendo più nel dettaglio verrà un po' perso il concetto iniziale per il quale
+un cono è associato ad una particolare porta logica del circuito, mentre rimarrà
+ben forte il concetto di cono come tale.
+
+La classe *GateCone* è stata estesa inserendo alcuni metodi molto utili per
+effettuare più velocemente operazioni insiemistiche richieste durante il
+procedimento di formazione delle soluzioni delle diagnosi, quali possono essere
+*complement*, *intersection*, *intersecate*, *has_element* ed *empty*, oltre
+alla già presente *join*.
+
+La gestione e la logica di creazione di tutti gli insiemi per poter arrivare
+alla soluzione della diagnosi sono svolte dalla classe *Diagnostic*. In questa
+classe sono state usate diverse strutture per poter facilitare la ricerca dei
+vari gate a seconda della loro classificazione nei vari momenti della procedura
+risolvente.
+
+Nella fase di caricamento da file vengono create le strutture base che
+descrivono completamente il circuito in questione:
+
+ 1. <!--\emph{\char`_cones}-->: *map<string, GateCone>* che racchiude tutti
+ i coni principali del circuito;
+ 2. <!--\emph{\char`_values}-->: *map<string, GateValue>* che indica i
+ valori qualitativi associati ad ogni uscita principale del circuito;
+ 3. <!--\emph{\char`_ok\char`_gates} e \emph{\char`_ko\char`_gates}-->:
+ <!--\emph{vector<string>}--> indicanti quali uscite principali hanno valore
+ *OK* e *KO* rispettivamente.
+
+Sono stati utilizzati anche altri <!--\emph{vector<string>}-->, molto utili
+durante la fase risolutiva, nei quali vengono mantenuti aggiornati i riferimenti
+a seconda di come vengono classificate le varie porte man mano che si procede
+nella costruzione della soluzione, ovvero a seconda dei quattro possibili valori
+che ogni porta può assumere (*OK*, *KO*, *OKM* e *KOM*, descritti
+dall'enumeratore *GateValue*). Queste strutture sono state ritenute necessarie
+in quanto diverse volte viene richiesto di operare solo sulle porte aventi un
+determinato valore di uscita e dover scorrere tutte le volte l'intera mappa dei
+componenti, controllando che il valore coincida con quello richiesto, è stato
+ritenuto una totale inefficenza facilmente migliorabile. Ad ogni passo in cui
+vengono cambiati i valori associati ad un porta, queste strutture vengono
+aggiornate così da rispecchiare la situazione attuale.
+
+Ogni volta che una nuova soluzione viene trovata, essa viene salvata in
+un'istanza della classe *DiagnosticSolution* (univoca per l'intera classe
+*Diagnostic*), basata su un <!--\emph{vector<SolutionData>}-->. *SolutionData* è
+una struttura che contiene, oltre alla soluzione trovata, l'intero stato
+corrente associato alla soluzione, ovvero i valori qualitativi che sono stati
+assegnati a ciascuna porta. Avremo di conseguenza quattro
+<!--\emph{vector<string>}--> che rappresentano quali porte logiche sono state
+assegnate a quali valori e un <!--\emph{vector<vector<string>>}--> che
+rappresenta la soluzione.
+
+## Algoritmi
+
+Il principale algoritmo usato per la creazione degli insiemi e per il calcolo
+della soluzione finale rispecchia fedelmente ciò che è indicato sulle slide
+fornite. 
+
+Di seguito verranno illustrati alcuni importanti procedimenti che sono stati
+usati nel progetto.
+
+### Calcolo dei sotto-insiemi OK
+
+Per calcolare l'i-esimo sotto-insieme delle porte aventi valore *OK*
+(codice [](#code:dia_ith_ok_subset)), il valore *i* viene rappresentato in
+codifica binaria con un numero di bit pari al numero di porte *OK* e si compone
+il sotto-insieme includendo quelle porte aventi associato valore 1 nella
+rappresentazione di *i*.
+
+<!--
+% Algorithm code
+\lstset{
+	language=C,
+	caption={Calcolo dei sotto-insiemi OK},
+	label={code:dia_ith_ok_subset}
+}
+
+\begin{lstlisting}
+gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
+{
+	gate_list* result = new gate_list();
+
+	// Creating a vector of elements that composes the ith subset of the ok
+	// gates and returns it
+	// The subset number is used to calculate which gates have to be part of the
+	// current subset, translating that number into its corresponding binary
+	// number and inserting it if the resulting binary value is 1.
+	
+	for( size_t i = 0; i < _ok_gates.size(); i++ )
+	{
+		if( subset_number % 2 == 1 )
+			result->push_back( _ok_gates.at( i ) );
+
+		// Going for the next part of the binary number
+		subset_number /= 2;
+	}
+
+	return result;
+}
+\end{lstlisting}
+-->
+
+### Calcolo delle combinazioni delle coppie OKM/KOM
+
+Ispirato dall'algoritmo utilizzato per calcolare i sotto-insiemi delle porte
+*OK* (codice [](#code:dia_ith_choice)), per calcolare l'i-esima combinazione di
+coppie di porte *(OKM, KOM)*, il valore *i* viene rappresentato in codifica
+n-aria, dove *n* coincide con il numero di porte *KO*, con un numero di cifre
+pari al numero di porte *OKM*, così da creare una scelta per ognuna. A seconda
+del valore della cifra, alla corrente porta *OKM* viene associata una differente
+porta *KO*, che verrà di conseguenza contrassegnata come *KOM*.
+
+<!--
+% Algorithm code
+\lstset{
+	language=C,
+	caption={Calcolo delle combinazioni di coppie OKM/KOM},
+	label={code:dia_ith_choice}
+}
+
+\begin{lstlisting}
+choice_list* Diagnostic::get_ith_choice( int combination_number )
+{
+	choice_list* result = new choice_list();
+	
+	// Clearing the kom vector
+	_processing_kom.clear();
+
+	for( size_t i = 0; i < _processing_okm.size(); i++ )
+	{
+		result->push_back( 
+			choice( 
+				_processing_okm.at( i ),
+				_ko_gates.at( combination_number % _ko_gates.size() ) ) );
+
+		// Adding the current element to the kom gates, if not already in it
+		if( std::find( _processing_kom.begin(),
+					   _processing_kom.end(),
+					   _ko_gates.at( combination_number % _ko_gates.size() ) )
+			== _processing_kom.end() )
+			_processing_kom.push_back( 
+				_ko_gates.at( combination_number % _ko_gates.size() ) );
+
+		// Going forward to the next okm element
+		combination_number /= _ko_gates.size();
+	}
+
+	return result;
+}
+\end{lstlisting}
+-->
+
+### MHS
+
+Per il calcolo del Minimal Hitting Set è stato utilizzato il programma fornito
+insieme alle slide, creando il file di ingresso opportuno a seconda della
+configurazione corrente.
+Ai fini di avere qualche dato aggiuntivo per i test, il tempo d'esecuzione del
+programma viene salvato e confrontato con il resto del programma.
+
+## Miglioramenti
+
+Come suggerito nelle slide associate al problema, sono stati implementati i
+miglioramenti così da evitare il processamento inutile di insiemi che non
+avrebbero portato ad una soluzione.
+
+Il primo miglioramento suggerito richiede di verificare che il cono della porta
+logica avente valore *OK* abbia intersezione non nulla con almeno un cono di una
+porta con valore *KO*.
+Questo viene controllato passando in rassegna tutti gli elementi contrassegnati
+con valore *OK* o *OKM* (vengono controllati anche i coni di queste ultime porte
+in quanto il controllo avviene nella parte di assegnazione dei valori *OKM* e
+alcune di queste porte potrebbero avere il proprio valore già cambiato) e
+verificando che l'intersezione con i coni delle porte *KO* sia non nulla.
+Il calcolo dell'interesezione viene effettuato tra i due coni ed è quindi di
+competenza della classe *GateCone*; l'algoritmo è un semplice algoritmo di
+ricerca dove il primo cono viene passato in rassegna elemento per elemento
+ricercando se tale elemento sia presente anche nel secondo cono e se viene
+trovato si conclude la procedura indicando che tra i due coni vi è
+un'intersezione. Al contrario se la ricerca non è negativa per tutti gli
+elementi verrà indicato che tra i due coni non vi è alcuna intersezione.
+
+Il secondo miglioramento suggerito richiede di controllare che il numero di
+elementi contrassegnati come *KOM* sia in numero minore degli elementi *OKM*,
+controllo da effettuare al momento della creazione delle possibili scelte tra le
+coppie di porte *OKM* e *KOM*.
+Questo controllo risulta essere banale grazie alle strutture dati usate: ad ogni
+momento è noto quali componenti siano contrassegnati a quale valore ed il
+controllo da svolgere è il confronto tra le dimensioni dei corrispondenti
+*vector*.
+

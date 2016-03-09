@@ -90,3 +90,4 @@ instances_clean:
 	rm -f ./instances/init_conf/*.conf
 	rm -f ./instances/fail_gates/*.gates
 	rm -f ./instances/simulation/*.sim_sol
+	rm -f ./instances/diagnoses/*.dia_sol

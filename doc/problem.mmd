@@ -35,5 +35,26 @@ descritte quali informazioni vengono fornite come risultato della simulazione:
  4. Coni dei terminali d'uscita: lista dei componenti, esclusi i terminali
  d'input, dai quali dipende il valore d'uscita.
 
-<!-- \todo[inline]{Nella parte diagnostica viene richiesto di...} -->
+Nella parte diagnostica viene richiesto di effettuare una diagnosi su un
+circuito e di fornirne il risultato ottenuto.
+
+Per poter effettuare una diagnosi è necessario avere la descrizione del circuito
+che si vuole diagnosticare, rappresentato attraverso i coni relativi alle sue
+uscite principali ed i valori qualitativi associati ad ognuna, ed il tipo di
+diagnosi della quale si vuole il responso. Le possibili diagnosi che si possono
+effettuare sono:
+
+ 1.	NO_MASKING: non vengono considerati fenomeni di mascheramento;
+ 2.	OKM_MASKING: vengono considerati solo i fenomeni di mascheramento relativi
+ ai coni OK;
+ 3.	KOM_MASKING: vengono considerati solo i fenomeni di mascheramento relativi
+ ai coni KO, questo mascheramento è possibile solo se sono presenti anche dei
+ valori OKM;
+ 4.	ALL_MASKING: tutti le configurazioni con un qualsiasi fenomeno di
+ mascheramento;
+ 5.	ALL_DIAGNOSES: tutte le possibili configurazioni con e senza mascheramento.
+
+Una volta concluso il procedimento, il programma restituirà un insieme di
+soluzioni contenenti combinazioni dei nomi dei componenti che soddisfano la
+diagnosi richeista.
 

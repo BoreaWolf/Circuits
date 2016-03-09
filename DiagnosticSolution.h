@@ -82,7 +82,6 @@ struct SolutionData
 	}
 };
 
-
 class DiagnosticSolution
 {
 	public:
