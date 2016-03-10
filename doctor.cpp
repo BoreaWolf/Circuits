@@ -60,11 +60,7 @@ int main( int argc, char ** argv )
 		//	input_diagnostic = DiagnosesType::KOM_MASKING;
 		// Create an enum to define diagnostic types
 	}
-
-	Diagnostic dia( input_data );
-	dia.solve( input_diagnostic );
-	dia.print_solutions();
-
+	
 	// Creating the output file depending on the input files received
 	// Retrieving the file name
 	std::string solution_filename = 
@@ -89,6 +85,11 @@ int main( int argc, char ** argv )
 
 	// Writing to file
 	FILE* solution_file = fopen( solution_filename.c_str(), "w" );
+
+	Diagnostic dia( input_data, solution_file );
+	dia.solve( input_diagnostic );
+	dia.print_solutions();
+
 	dia.print_solutions( solution_file );
 	fclose( solution_file );
 	

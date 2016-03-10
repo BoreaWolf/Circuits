@@ -123,6 +123,7 @@ class DiagnosticSolution
 {
 	public:
 		DiagnosticSolution();
+		DiagnosticSolution( FILE* );
 		~DiagnosticSolution();
 
 		int size();
@@ -144,7 +145,8 @@ class DiagnosticSolution
 		void print( FILE* = stdout );
 	
 	private:
-		std::vector< SolutionData > _solutions;
+		int _solutions_found;
+		FILE* _output_file;
 };
 
 #endif

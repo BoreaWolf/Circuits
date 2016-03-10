@@ -36,7 +36,7 @@ typedef std::chrono::milliseconds time_um;
 class Diagnostic
 {
 	public:
-		Diagnostic( const std::string& );
+		Diagnostic( const std::string&, FILE* );
 		~Diagnostic();
 
 		void solve( DiagnosesType& );
@@ -88,6 +88,8 @@ class Diagnostic
 		// Times
 		double _execution_time;
 		double _mhs_processing_time;
+
+		FILE* _output_file;
 };
 
 #endif

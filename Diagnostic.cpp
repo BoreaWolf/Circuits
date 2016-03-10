@@ -12,7 +12,7 @@
 //	#define DEBUG
 #endif
 
-Diagnostic::Diagnostic( const std::string& input_filename )
+Diagnostic::Diagnostic( const std::string& input_filename, FILE* output_file )
 {
 	_name = input_filename;
 	_cones = cone_map();
@@ -25,10 +25,12 @@ Diagnostic::Diagnostic( const std::string& input_filename )
 	_processing_okm = gate_list();
 	_processing_kom = gate_list();
 
-	_solution = DiagnosticSolution();
+	_solution = DiagnosticSolution( output_file );
 
 	_execution_time = 0;
 	_mhs_processing_time = 0;
+
+	_output_file = output_file;
 
 	load( _name );
 
@@ -345,10 +347,7 @@ void Diagnostic::print_solutions( FILE* file )
 {
 	fprintf( file, "Diagnostic::print_solutions\n" );
 
-	fprintf( file, "\tSolutions found %d\n", _solution.size() );
-	// If I receive a real external file I print all the solutions found
-	if( file != stdout )
-		_solution.print( file );
+	_solution.print( file );
 
 	fprintf( file, "\tProcessing times:\n" );
 	fprintf( file, "\t\tExecution: %.5f milliseconds\n", _execution_time );

@@ -13,7 +13,13 @@
 #endif
 
 DiagnosticSolution::DiagnosticSolution()
+{	}
+
+DiagnosticSolution::DiagnosticSolution( FILE* output_file )
 {
+	_solutions_found = 0;
+	_output_file = output_file;
+
 #ifdef DEBUG
 	fprintf( stdout, "DiagnosticSolution::DiagnosticSolution Created %p\n", this );
 	fflush( stdout );
@@ -30,7 +36,7 @@ DiagnosticSolution::~DiagnosticSolution()
 
 int DiagnosticSolution::size()
 {
-	return _solutions.size();
+	return _solutions_found;
 }
 
 void DiagnosticSolution::save( std::vector< gate_list >& mhs,
@@ -39,9 +45,13 @@ void DiagnosticSolution::save( std::vector< gate_list >& mhs,
 							   gate_list& okm,
 							   gate_list& kom )
 {
-	_solutions.push_back( SolutionData( ok, ko, okm, kom, mhs ) );
+	// Saving the result on file, so I don't store anything in memory
+	SolutionData solution_temp = SolutionData( ok, ko, okm, kom, mhs );
+	solution_temp.print( _solutions_found, _output_file );
+	_solutions_found++;
+
 	// User interface stuff
-	if( _solutions.size() % PRINTING_GAP == 0 )
+	if( _solutions_found % PRINTING_GAP == 0 )
 	{
 		fprintf( stdout, "." );
 		fflush( stdout );
@@ -54,9 +64,12 @@ void DiagnosticSolution::save( std::vector< GateCone >& B,
 							   gate_list& okm,
 							   gate_list& kom )
 {
-	_solutions.push_back( SolutionData( ok, ko, okm, kom, B ) );
+	SolutionData solution_temp = SolutionData( ok, ko, okm, kom, B );
+	solution_temp.print( _solutions_found, _output_file );
+	_solutions_found++;
+		
 	// User interface stuff
-	if( _solutions.size() % PRINTING_GAP == 0 )
+	if( _solutions_found % PRINTING_GAP == 0 )
 	{
 		fprintf( stdout, "." );
 		fflush( stdout );
@@ -65,7 +78,6 @@ void DiagnosticSolution::save( std::vector< GateCone >& B,
 
 void DiagnosticSolution::print( FILE* file )
 {
-	fprintf( file, "DiagnosticSolution::print Solutions\n" );
-	for( size_t i = 0; i < _solutions.size(); i++ )
-		_solutions.at( i ).print( i, file );
+	fprintf( file, "DiagnosticSolution::print %d solutions found\n",
+				_solutions_found );
 }
