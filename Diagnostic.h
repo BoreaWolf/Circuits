@@ -46,7 +46,7 @@ class Diagnostic
 		// Setting some other output values to KOM
 		void diagnoses_one_config( DiagnosesType& );
 		// Calculating the final diagnoses solution
-		void diagnoses_one_choice( cone_map&, choice_list* );
+		void diagnoses_one_choice( cone_map&, choice_list& );
 
 		void print_solutions( FILE* = stdout );
 
@@ -54,7 +54,7 @@ class Diagnostic
 		// Methods
 		void load( const std::string& );
 
-		gate_list* get_ith_ok_subset( double );
+		void get_ith_ok_subset( double, gate_list& );
 		double get_ok_subset_number();
 		bool check_cone_intersection( value_map& );
 
@@ -62,7 +62,7 @@ class Diagnostic
 		void print_processing_status();
 
 		double get_choice_combinations_number();
-		choice_list* get_ith_choice( double );
+		void get_ith_choice( double, choice_list& );
 
 		void mhs( cone_list& );
 		

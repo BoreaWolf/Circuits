@@ -72,7 +72,7 @@ void Diagnostic::solve( DiagnosesType& diagnoses_type )
 
 void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 {
-	gate_list* current_subset;
+	gate_list current_subset = gate_list();
 	value_map okm_configuration = value_map();
 	GateValue value_temp;
 
@@ -81,7 +81,7 @@ void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 		// Resetting the OKM configuration so I can build a new one based on
 		// the current subset
 		okm_configuration = value_map();
-		current_subset = get_ith_ok_subset( i );
+		get_ith_ok_subset( i, current_subset );
 
 		for( value_map::iterator it = _values.begin();
 			 it != _values.end();
@@ -89,9 +89,9 @@ void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 		{
 			// Checking if the element is present in the subset, if so I set it
 			// to OKM exit value, otherwise I keep its configuration
-			if( std::find( current_subset->begin(),
-						   current_subset->end(),
-						   it->first ) != current_subset->end() )
+			if( std::find( current_subset.begin(),
+						   current_subset.end(),
+						   it->first ) != current_subset.end() )
 				value_temp = GateValue::OKM;
 			else
 				value_temp = it->second;
@@ -154,7 +154,7 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 {
 	GateCone ok_cones = GateCone();
 	cone_map cone_collection = cone_map();
-	choice_list* choices = new choice_list();
+	choice_list choices = choice_list();
 	
 	// Creating the union of cones of the gates having OK as output value in the
 	// current case
@@ -228,7 +228,7 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 			_processing_ko = _ko_gates;
 
 			// Retrieving the ith combination of choices
-			choices = get_ith_choice( i );
+			get_ith_choice( i, choices );
 
 			// Updating the KO list accordingly with the set KOM gates
 			for( size_t i = 0; i < _processing_kom.size(); i++ )
@@ -238,10 +238,10 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 			
 #ifdef DEBUG
 			fprintf( stdout, "Diagnostic::diagnoses_one_config Choices: " );
-			for( size_t i = 0; i < choices->size(); i++ )
+			for( size_t i = 0; i < choices.size(); i++ )
 				fprintf( stdout, "(%s, %s) ",
-							choices->at( i ).first.c_str(),
-							choices->at( i ).second.c_str() );
+							choices.at( i ).first.c_str(),
+							choices.at( i ).second.c_str() );
 			fprintf( stdout, "\n" );
 
 			print_processing_status();
@@ -257,23 +257,23 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 }
 
 void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
-									   choice_list* choices )
+									   choice_list& choices )
 {
 	cone_list result = cone_list();
 	GateCone complement, intersection;
 
-	for( size_t i = 0; i < choices->size(); i++ )
+	for( size_t i = 0; i < choices.size(); i++ )
 	{	
 		// Temporary cones: using temp variables because are long and are needed
 		// two times
 		complement = 
-			cone_collection.find( choices->at( i ).first )->second
+			cone_collection.find( choices.at( i ).first )->second
 				.complement( 
-					cone_collection.find( choices->at( i ).second )->second );
+					cone_collection.find( choices.at( i ).second )->second );
 		intersection = 
-			cone_collection.find( choices->at( i ).first )->second
+			cone_collection.find( choices.at( i ).first )->second
 				.intersection(
-					cone_collection.find( choices->at( i ).second )->second );
+					cone_collection.find( choices.at( i ).second )->second );
 
 		// Checking if the difference between selected gate cones are empty: if
 		// so I interrupt the procedure
@@ -308,7 +308,7 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 
 	// If no choices are given, so no KOM are set, I add also every okm to the
 	// Collection B
-	if( choices->size() == 0 )
+	if( choices.size() == 0 )
 	{
 #ifdef DEBUG
 		fprintf( stdout, "Diagnostic::diagnoses_one_chioce No choices, adding OKM to Collection B\n" );
@@ -492,10 +492,8 @@ void Diagnostic::load( const std::string& input_filename )
 	input_file.close();
 }
 
-gate_list* Diagnostic::get_ith_ok_subset( double subset_number )
+void Diagnostic::get_ith_ok_subset( double subset_number, gate_list& subset )
 {
-	gate_list* result = new gate_list();
-
 	// Creating a vector of elements that composes the ith subset of the ok
 	// gates and returns it
 	// The subset number is used to calculate which gates have to be part of the
@@ -506,18 +504,19 @@ gate_list* Diagnostic::get_ith_ok_subset( double subset_number )
 	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %.0lf: ", subset_number );
 #endif
 
+	// Resetting the subset
+	subset.clear();
+
 	for( size_t i = 0; i < _ok_gates.size(); i++ )
 	{
-		//	if( subset_number % 2 == 1 )
 		if( fmod( subset_number, 2 ) == 1 )
-			result->push_back( _ok_gates.at( i ) );
+			subset.push_back( _ok_gates.at( i ) );
 
 #ifdef DEBUG
 		fprintf( stdout, "%s(%.0lf)[%lu] ",
 					_ok_gates.at( i ).c_str(),
-					//	subset_number % 2,
 					fmod( subset_number, 2 ),
-					result->size() );
+					subset.size() );
 #endif
 
 		// Going for the next part of the binary number
@@ -527,8 +526,6 @@ gate_list* Diagnostic::get_ith_ok_subset( double subset_number )
 #ifdef DEBUG
 	fprintf( stdout, "\n" );
 #endif
-
-	return result;
 }
 
 double Diagnostic::get_ok_subset_number()
@@ -678,14 +675,14 @@ double Diagnostic::get_choice_combinations_number()
 // and KO lists
 // The combination number will get transformed in a different base number
 // according to the current KO list size
-choice_list* Diagnostic::get_ith_choice( double combination_number )
+void Diagnostic::get_ith_choice( double combination_number, choice_list& choices )
 {
 #ifdef DEBUG
 	fprintf( stdout, "Diagnostic::get_ith_choice %.0lf\n", combination_number );
 #endif
 
-	choice_list* result = new choice_list();
-	
+	// Clearing the choices vector
+	choices.clear();
 	// Clearing the kom vector
 	_processing_kom.clear();
 	// int should be enough
@@ -696,7 +693,7 @@ choice_list* Diagnostic::get_ith_choice( double combination_number )
 		// Taking a ko_gate for the current okm gate
 		current_ko_value = fmod( combination_number, _ko_gates.size() );
 
-		result->push_back( 
+		choices.push_back( 
 			choice( 
 				_processing_okm.at( i ),
 				_ko_gates.at( current_ko_value ) ) );
@@ -714,13 +711,11 @@ choice_list* Diagnostic::get_ith_choice( double combination_number )
 	}
 
 #ifdef DEBUG
-	for( size_t i = 0; i < result->size(); i++ )
+	for( size_t i = 0; i < choices.size(); i++ )
 		fprintf( stdout, "\t(%s, %s)\n",
-					result->at( i ).first.c_str(),
-					result->at( i ).second.c_str() );
+					choices.at( i ).first.c_str(),
+					choices.at( i ).second.c_str() );
 #endif
-
-	return result;
 }
 
 void Diagnostic::mhs( cone_list& cone_collection )
