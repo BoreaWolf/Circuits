@@ -41,8 +41,26 @@ void DiagnosticSolution::save( std::vector< gate_list >& mhs,
 {
 	_solutions.push_back( SolutionData( ok, ko, okm, kom, mhs ) );
 	// User interface stuff
-	fprintf( stdout, "." );
-	fflush( stdout );
+	if( _solutions.size() % PRINTING_GAP == 0 )
+	{
+		fprintf( stdout, "." );
+		fflush( stdout );
+	}
+}
+
+void DiagnosticSolution::save( std::vector< GateCone >& B,
+							   gate_list& ok,
+							   gate_list& ko,
+							   gate_list& okm,
+							   gate_list& kom )
+{
+	_solutions.push_back( SolutionData( ok, ko, okm, kom, B ) );
+	// User interface stuff
+	if( _solutions.size() % PRINTING_GAP == 0 )
+	{
+		fprintf( stdout, "." );
+		fflush( stdout );
+	}
 }
 
 void DiagnosticSolution::print( FILE* file )

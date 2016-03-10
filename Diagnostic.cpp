@@ -9,7 +9,7 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-	#define DEBUG
+//	#define DEBUG
 #endif
 
 Diagnostic::Diagnostic( const std::string& input_filename )
@@ -328,7 +328,17 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 
 	// Calling the computation of the Minimal Hitting Set on the resulting gate
 	// cones
-	mhs( result );
+	
+	// For testing
+	//	mhs( result );
+	
+	// Saving the Collection B
+	_solution.save( result,
+					_processing_ok, 
+					_processing_ko, 
+					_processing_okm,
+					_processing_kom );
+	
 }
 
 void Diagnostic::print_solutions( FILE* file )

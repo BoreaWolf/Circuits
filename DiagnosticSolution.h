@@ -9,9 +9,13 @@
 #ifndef DIAGNOSTIC_SOLUTION
 #define DIAGNOSTIC_SOLUTION
 
+#include "./GateCone.h"
+
 #include <stdio.h>
 #include <string>
 #include <vector>
+
+#define PRINTING_GAP 100
 
 typedef std::vector< std::string > gate_list;
 
@@ -28,6 +32,7 @@ struct SolutionData
 	gate_list _ko;
 	gate_list _okm;
 	gate_list _kom;
+	std::vector< GateCone > _collection_B;
 	std::vector< gate_list > _mhs;
 
 	SolutionData()
@@ -36,6 +41,7 @@ struct SolutionData
 		_ko = gate_list();
 		_okm = gate_list();
 		_kom = gate_list();
+		_collection_B = std::vector< GateCone >();
 		_mhs = std::vector< gate_list >();
 	}
 
@@ -43,13 +49,28 @@ struct SolutionData
 				  gate_list& ko,
 				  gate_list& okm,
 				  gate_list& kom,
-				  std::vector< gate_list > mhs )
+				  std::vector< gate_list >& mhs )
 	{
 		_ok = ok;
 		_ko = ko;
 		_okm = okm;
 		_kom = kom;
+		_collection_B = std::vector< GateCone >();
 		_mhs = mhs;
+	}
+
+	SolutionData( gate_list& ok,
+				  gate_list& ko,
+				  gate_list& okm,
+				  gate_list& kom,
+				  std::vector< GateCone >& B )
+	{
+		_ok = ok;
+		_ko = ko;
+		_okm = okm;
+		_kom = kom;
+		_collection_B = B;
+		_mhs = std::vector< gate_list >();
 	}
 
 	~SolutionData()
@@ -66,18 +87,34 @@ struct SolutionData
 		fprintf( file, "\n\t" );
 		print_gatelist( _kom, "KOM", file );
 
-		fprintf( file, "\n\tMHS:\n" );
-		for( size_t i = 0; i < _mhs.size(); i++ )
+		// Depending on which kind of data I stored I print different things
+		// MHS
+		if( _mhs.size() > 0 )
 		{
-			fprintf( file, "\t\t%lu: {", i );
-			for( size_t j = 0; j < _mhs.at( i ).size(); j++ )
+			fprintf( file, "\n\tMHS:\n" );
+			for( size_t i = 0; i < _mhs.size(); i++ )
 			{
-				if( j != 0 )
-					fprintf( file, "," );
-				fprintf( file, " %s", _mhs.at( i ).at( j ).c_str() );
-			}
+				fprintf( file, "\t\t%lu: {", i );
+				for( size_t j = 0; j < _mhs.at( i ).size(); j++ )
+				{
+					if( j != 0 )
+						fprintf( file, "," );
+					fprintf( file, " %s", _mhs.at( i ).at( j ).c_str() );
+				}
 
-			fprintf( file, " }\n" );
+				fprintf( file, " }\n" );
+			}
+		}
+		// Collection B
+		else
+		{
+			fprintf( file, "\n\tCollection B:\n" );
+			for( size_t i = 0; i < _collection_B.size(); i++ )
+			{
+				fprintf( file, "\t\t" );
+				_collection_B.at( i ).print( std::to_string( i ), file );
+				fprintf( file, "\n" );
+			}
 		}
 	}
 };
@@ -90,7 +127,15 @@ class DiagnosticSolution
 
 		int size();
 
+		// Saving the result of the MHS
 		void save( std::vector< gate_list >&,
+				   gate_list&,
+				   gate_list&,
+				   gate_list&,
+				   gate_list& );
+
+		// Saving the Collection B
+		void save( std::vector< GateCone >&,
 				   gate_list&,
 				   gate_list&,
 				   gate_list&,

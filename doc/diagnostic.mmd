@@ -85,6 +85,10 @@ codifica binaria con un numero di bit pari al numero di porte *OK* e si compone
 il sotto-insieme includendo quelle porte aventi associato valore 1 nella
 rappresentazione di *i*.
 
+A causa dell'elevato numero di possibili combinazioni, la combinazione richiesta
+viene rappresentata come un *double* e non come un *int*, come verrebbe più
+normale pensare.
+
 <!--
 % Algorithm code
 \lstset{
@@ -94,7 +98,7 @@ rappresentazione di *i*.
 }
 
 \begin{lstlisting}
-gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
+gate_list* Diagnostic::get_ith_ok_subset( double subset_number )
 {
 	gate_list* result = new gate_list();
 
@@ -103,14 +107,14 @@ gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
 	// The subset number is used to calculate which gates have to be part of the
 	// current subset, translating that number into its corresponding binary
 	// number and inserting it if the resulting binary value is 1.
-	
+
 	for( size_t i = 0; i < _ok_gates.size(); i++ )
 	{
-		if( subset_number % 2 == 1 )
+		if( fmod( subset_number, 2 ) == 1 )
 			result->push_back( _ok_gates.at( i ) );
 
 		// Going for the next part of the binary number
-		subset_number /= 2;
+		subset_number = floor( subset_number / 2 );
 	}
 
 	return result;
@@ -128,6 +132,9 @@ pari al numero di porte *OKM*, così da creare una scelta per ognuna. A seconda
 del valore della cifra, alla corrente porta *OKM* viene associata una differente
 porta *KO*, che verrà di conseguenza contrassegnata come *KOM*.
 
+Come per l'algoritmo precedente, anche qui il numero della combinazione viene
+rappresentata come un *double*.
+
 <!--
 % Algorithm code
 \lstset{
@@ -137,30 +144,35 @@ porta *KO*, che verrà di conseguenza contrassegnata come *KOM*.
 }
 
 \begin{lstlisting}
-choice_list* Diagnostic::get_ith_choice( int combination_number )
+choice_list* Diagnostic::get_ith_choice( double combination_number )
 {
 	choice_list* result = new choice_list();
 	
 	// Clearing the kom vector
 	_processing_kom.clear();
+	// int should be enough
+	int current_ko_value = 0;
 
 	for( size_t i = 0; i < _processing_okm.size(); i++ )
 	{
+		// Taking a ko_gate for the current okm gate
+		current_ko_value = fmod( combination_number, _ko_gates.size() );
+
 		result->push_back( 
 			choice( 
 				_processing_okm.at( i ),
-				_ko_gates.at( combination_number % _ko_gates.size() ) ) );
+				_ko_gates.at( current_ko_value ) ) );
 
 		// Adding the current element to the kom gates, if not already in it
 		if( std::find( _processing_kom.begin(),
 					   _processing_kom.end(),
-					   _ko_gates.at( combination_number % _ko_gates.size() ) )
+					   _ko_gates.at( current_ko_value ) )
 			== _processing_kom.end() )
 			_processing_kom.push_back( 
-				_ko_gates.at( combination_number % _ko_gates.size() ) );
+				_ko_gates.at( current_ko_value ) );
 
 		// Going forward to the next okm element
-		combination_number /= _ko_gates.size();
+		combination_number = floor( combination_number / _ko_gates.size() );
 	}
 
 	return result;

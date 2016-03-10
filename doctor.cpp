@@ -92,8 +92,8 @@ int main( int argc, char ** argv )
 	dia.print_solutions( solution_file );
 	fclose( solution_file );
 	
-
-	fprintf( stdout, "Yeah! Diagnostics done! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n" );
+	fprintf( stdout, "Yeah! Diagnostics done @ '%s'! (ฅ⁍̴̀◊⁍̴́)و ̑̑\n",
+				solution_filename.c_str() );
 	
 	return 0;
 }
