@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <fstream>
 #include <regex>
 #include <map>
@@ -53,15 +54,15 @@ class Diagnostic
 		// Methods
 		void load( const std::string& );
 
-		gate_list* get_ith_ok_subset( int );
-		int get_ok_subset_number();
+		gate_list* get_ith_ok_subset( double );
+		double get_ok_subset_number();
 		bool check_cone_intersection( value_map& );
 
 		void update_processing_vector( value_map& );
 		void print_processing_status();
 
-		int get_choice_combinations_number();
-		choice_list* get_ith_choice( int );
+		double get_choice_combinations_number();
+		choice_list* get_ith_choice( double );
 
 		void mhs( cone_list& );
 		

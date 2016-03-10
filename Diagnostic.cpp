@@ -9,7 +9,7 @@
 #include "Diagnostic.h"
 
 #ifndef DEBUG
-//	#define DEBUG
+	#define DEBUG
 #endif
 
 Diagnostic::Diagnostic( const std::string& input_filename )
@@ -56,6 +56,7 @@ void Diagnostic::solve( DiagnosesType& diagnoses_type )
 				_name.c_str() );
 
 	fprintf( stdout, "'%s' requested", to_string( diagnoses_type ) );
+	fflush( stdout );
 
 	all_diagnoses( diagnoses_type );
 
@@ -73,7 +74,7 @@ void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 	value_map okm_configuration = value_map();
 	GateValue value_temp;
 
-	for( int i = 0; i < get_ok_subset_number(); i++ )
+	for( double i = 0; i < get_ok_subset_number(); i++ )
 	{
 		// Resetting the OKM configuration so I can build a new one based on
 		// the current subset
@@ -218,7 +219,7 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 		// step, I can determine which are the KOM gates
 		// I'll keep going with the diagnoses only if the number of KOM selected are
 		// less or equal than the number of OKM gates (suggested improvement)
-		for( int i = 0; i < get_choice_combinations_number(); i++ )
+		for( double i = 0; i < get_choice_combinations_number(); i++ )
 		{
 			// Restoring KO and KOM vectors
 			_processing_kom.clear();
@@ -482,7 +483,7 @@ void Diagnostic::load( const std::string& input_filename )
 	input_file.close();
 }
 
-gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
+gate_list* Diagnostic::get_ith_ok_subset( double subset_number )
 {
 	gate_list* result = new gate_list();
 
@@ -493,23 +494,25 @@ gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
 	// number and inserting it if the resulting binary value is 1.
 	
 #ifdef DEBUG
-	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %d: ", subset_number );
+	fprintf( stdout, "Diagnostic::get_ith_ok_subset on %.0lf: ", subset_number );
 #endif
 
 	for( size_t i = 0; i < _ok_gates.size(); i++ )
 	{
-		if( subset_number % 2 == 1 )
+		//	if( subset_number % 2 == 1 )
+		if( fmod( subset_number, 2 ) == 1 )
 			result->push_back( _ok_gates.at( i ) );
 
 #ifdef DEBUG
-		fprintf( stdout, "%s(%d)[%lu] ",
+		fprintf( stdout, "%s(%.0lf)[%lu] ",
 					_ok_gates.at( i ).c_str(),
-					subset_number % 2,
+					//	subset_number % 2,
+					fmod( subset_number, 2 ),
 					result->size() );
 #endif
 
 		// Going for the next part of the binary number
-		subset_number /= 2;
+		subset_number = floor( subset_number / 2 );
 	}
 
 #ifdef DEBUG
@@ -519,15 +522,15 @@ gate_list* Diagnostic::get_ith_ok_subset( int subset_number )
 	return result;
 }
 
-int Diagnostic::get_ok_subset_number()
+double Diagnostic::get_ok_subset_number()
 {
 #ifdef DEBUG
-	fprintf( stdout, "\nDiagnostic::get_ok_subset_number %d having %lu OK\n",
-				( _ok_gates.size() == 0 ? 0 : (int) pow( 2, _ok_gates.size() ) ),
+	fprintf( stdout, "\nDiagnostic::get_ok_subset_number %.0lf having %lu OK\n",
+				( _ok_gates.size() == 0 ? 0 : pow( 2, _ok_gates.size() ) ),
 				_ok_gates.size() );
 #endif
 
-	return (int)( _ok_gates.size() == 0 ? 0 : ( pow( 2, _ok_gates.size() ) ) );
+	return ( _ok_gates.size() == 0 ? 0 : ( pow( 2, _ok_gates.size() ) ) );
 }
 
 bool Diagnostic::check_cone_intersection( value_map& current_values )
@@ -646,54 +649,59 @@ void Diagnostic::print_processing_status()
 	fprintf( stdout, "\n" );
 }
 
-int Diagnostic::get_choice_combinations_number()
+double Diagnostic::get_choice_combinations_number()
 {
 #ifdef DEBUG
-	fprintf( stdout, "\nDiagnostic::get_choice_combinations_number %d having %lu OKM and %lu KO\n",
+	fprintf( stdout, "\nDiagnostic::get_choice_combinations_number %.0lf having %lu OKM and %lu KO\n",
 				( _processing_okm.size() == 0 ? 
 					0 : 
-					(int) pow( _ko_gates.size(), _processing_okm.size() ) ),
+					pow( _ko_gates.size(), _processing_okm.size() ) ),
 				_processing_okm.size(),
 				_ko_gates.size() );
 #endif
 
-	return (int)( _processing_okm.size() == 0 ? 
-					0 : 
-					pow( _ko_gates.size(), _processing_okm.size() ) );
+	return ( _processing_okm.size() == 0 ? 
+		   	0 : 
+		   	pow( _ko_gates.size(), _processing_okm.size() ) );
 }
 
 // Composing the ith combination of the possible choices, starting from the OKM
 // and KO lists
 // The combination number will get transformed in a different base number
 // according to the current KO list size
-choice_list* Diagnostic::get_ith_choice( int combination_number )
+choice_list* Diagnostic::get_ith_choice( double combination_number )
 {
 #ifdef DEBUG
-	fprintf( stdout, "Diagnostic::get_ith_choice %d\n", combination_number );
+	fprintf( stdout, "Diagnostic::get_ith_choice %.0lf\n", combination_number );
 #endif
 
 	choice_list* result = new choice_list();
 	
 	// Clearing the kom vector
 	_processing_kom.clear();
+	// int should be enough
+	int current_ko_value = 0;
 
 	for( size_t i = 0; i < _processing_okm.size(); i++ )
 	{
+		// Taking a ko_gate for the current okm gate
+		current_ko_value = fmod( combination_number, _ko_gates.size() );
+
 		result->push_back( 
 			choice( 
 				_processing_okm.at( i ),
-				_ko_gates.at( combination_number % _ko_gates.size() ) ) );
+				_ko_gates.at( current_ko_value ) ) );
 
 		// Adding the current element to the kom gates, if not already in it
 		if( std::find( _processing_kom.begin(),
 					   _processing_kom.end(),
-					   _ko_gates.at( combination_number % _ko_gates.size() ) )
+					   _ko_gates.at( current_ko_value ) )
 			== _processing_kom.end() )
 			_processing_kom.push_back( 
-				_ko_gates.at( combination_number % _ko_gates.size() ) );
+				_ko_gates.at( current_ko_value ) );
 
 		// Going forward to the next okm element
-		combination_number /= _ko_gates.size();
+		combination_number = floor( combination_number / _ko_gates.size() );
 	}
 
 #ifdef DEBUG
