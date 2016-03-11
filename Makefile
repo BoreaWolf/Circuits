@@ -71,7 +71,7 @@ gate_cone.o:	GateCone.h GateCone.cpp
 	$(CCC) $(COPT) -c GateCone.cpp -o gate_cone.o
 
 # Diagnostic related
-diagnostic.o:	Diagnostic.h Diagnostic.cpp
+diagnostic.o:	Diagnostic.h Diagnostic.cpp constants.o
 	$(CCC) $(COPT) -c Diagnostic.cpp -o diagnostic.o
 
 diagnostic_solution.o:	DiagnosticSolution.h DiagnosticSolution.cpp

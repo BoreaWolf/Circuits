@@ -17,14 +17,26 @@ strumento molto utile per la gestione del progetto durante la sua creazione e
 sviluppo; di conseguenza tutto il materiale può essere reperito nella repository
  <!--\href{https://github.com/BoreaWolf/Circuits}{Circuits}-->.
 
-<!-- \todo[inline]{Struttura zip} -->
+Il file zip del progetto contiene, nella cartella principale, tutto il codice
+sorgente e tre sottocartelle: una contiene la documentazione, una le istanze e
+l'ultima il codice relativo al programma per il calcolo del MHS.
+La cartella delle istanze è suddivisa in altre sotto cartelle, ognuna con un
+particolare significato: *circuits* contiene le istanze note del problema;
+*diagnoses* contiene i risultati delle diagnosi; *fail_gates* contiene i file
+che indicano quali porte logiche hanno dei guasti; *init_conf* contiene i file
+relativi alla configurazione iniziale delle porte d'ingresso; *simulation*
+contiene i risultati della simulazione; *test* contiene i risultati utilizzati
+nella documentazione.
 
-<!-- \todo[inline]{Compilazione} -->
-
-<!--
-%	Progetto per ASD
-%	Tutto presente su GitHub @
-%	Struttura dello zip che verrà inviato
-%	Come compilare
--->
+Il programma ha al suo interno un Makefile che permette di compilare i due
+programmi, chiamati *simulation* e *doctor*, i quali richiedono dei file
+ingresso per poter essere eseguiti: *simulation* richiede una configurazione
+iniziale delle porte e una lista delle porte con guasti, mentre *doctor*
+richiede un unico file contenente i coni delle porte principali e i valori
+qualitativi ad esse associate.
+Per evitare la generazione manuale dei file per la parte di simulazione, è stato
+creato uno script che li genera casualmente a seconda del tipo di circuito
+desiderato. Inoltre sono a disposizione altri due script che risolvono un
+circuito dall'inizio alla fine (generazione input, simulazione e diagnosi) e
+risolvono tutti i circuiti noti automaticamente.
 

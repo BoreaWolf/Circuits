@@ -6,9 +6,6 @@ un problema associato ad un circuito, sono stati implementati alcuni script
 automatici per la generazione dei dati necessari alla simulazione e per la loro
 successiva esecuzione.
 
-<!-- \todo{Per la parte di simulazione bla bla, mentre per la parte diagnostica
-	bla bla?} -->
-
 Uno script (*create_instance*), ricevendo in ingresso il file descrittivo di un
 circuito, genera il file relativo alla configurazione iniziale dei terminali
 d'ingresso ed il file nel quale vengono indicate le porte con dei guasti; un
@@ -26,6 +23,9 @@ precedenza, all'aumentare del numero di componenti presenti in un circuito
 aumenta il tempo d'esecuzione del programma in modo lineare
 ([](#fig:test_tempi_simulazione)).
 
+Non sono stati riscontrati problemi di alcun tipo nell'esecuzione di questa
+parte.
+
 <!--
 \begin{figure}
 	\centering
@@ -36,4 +36,68 @@ aumenta il tempo d'esecuzione del programma in modo lineare
 -->
 
 ## Diagnostica
+
+Per i test riguardanti questa parte è stato necessario riadattare e modificare
+svariate volte il codice originale, in modo tale da poter presentare dei
+risultati. I problemi risiedono nel tempo di calcolo dei MHS e nell'elevato
+numero di combinazioni possibili che si generano durante la risoluzione e, di
+conseguenza, i risultati che si vanno ad ottenere.
+
+Il primo problema riscontrato era legato ai tempi di esecuzione del programma
+esterno per il calcolo dei Minimal Hitting Set: l'unica istanza che sono
+riuscito a completare è la seconda più piccola (circuito C432) nella quale sono
+state trovate 94 soluzioni in un tempo pari a:
+
+<!--
+\begin{table}[h]
+	\centering
+
+	\begin{tabular}{ c || c }
+		Execution:	& 40585763.00000 milliseconds	\\
+		MHS:		& 40582863.00000 milliseconds	\\
+		Non MHS:	& 2900.00000 milliseconds		\\
+	\end{tabular}
+
+	%	\caption{Tempi d'esecuzione con MHS}
+	\label{table:mhs_times}
+\end{table}
+-->
+
+Come si può notare la maggior parte del tempo è stato impiegato per il calcolo
+dei Minimal Hitting Set[^MHS_Time]: per questo motivo si è deciso di mantenere
+questo test come dimostrazione della pesantezza di calcolo associata a questa
+parte e di escluderla nei test successivi, andando a salvare la *Collection B*
+anziché il risultato del MHS.
+
+Una volta escluso il calcolo dei MHS e passando ad istanze più grandi sono sorti
+problemi di diverso tipo, ovvero il numero di possibili combinazioni calcolabili
+all'interno dell'intero procedimento sono cresciute esponenzialmente e non è più
+stato possibile calcolarle tutte in tempi ragionevoli. Per i circuiti C17 e C432
+non ci sono problemi di questo tipo, ma già dal C499 il numero di soluzioni è
+enorme: allo stato attuale sono state trovate più di 8.500.000 soluzioni dopo 
+circa 470 minuti di esecuzione (quasi 8 ore).
+
+Inoltre, in un primo momento i risultati venivano tenuti in memoria in unico
+*vector*, ma col crescere delle istanze questo causava problemi di memoria. Per
+ovviare al problema si è deciso di non salvare nel programma i risultati, ma di
+scriverli direttamente sul file di uscita (procedimento che sarebbe avvenuto
+anche nel caso precedente, ma solo al termine dell'esecuzione completa della
+diagnosi). Successivamente anche anche questa metodologia non si è rivelata
+particolarmente efficace, in quanto andava a generare dei file di dimensioni
+enormi[^Solution_File_Size], rendendoli così inutilizzabili anche per eventuali
+processamenti futuri. Al termine si è deciso di stampare esclusivamente il
+numero di soluzioni trovate e non la loro composizione.
+
+L'unione di questi problemi ha portato a restringere ancor più il programma,
+ovvero imponendo un limite temporale massimo per l'esecuzione di ciascuna
+istanza. Per poter ottenere dei risultati, sono stati usati tempi pari ad 1
+minuto e 5 minuti per circuito, ogni circuito è stato successivamente testato su
+5 configurazioni generate casualmente.
+
+[^MHS_Time]: approssimativamente 11 ore e mezza richieste per il calcolo di 94
+MHS.
+
+[^Solution_File_Size]: il file al quale mi sto riferendo è stato generato
+partendo dal circuito C499 che, dopo svariate ore di lavoro, ha raggiunto una
+dimensione di oltre 10GB.
 
