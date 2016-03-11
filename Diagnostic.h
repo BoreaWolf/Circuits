@@ -25,6 +25,15 @@
 #include <stdio.h>
 #include <string>
 
+enum class ProcessingStatus : int
+{
+	SOLUTION_FOUND = 0,
+	OUT_OF_TIME = 1,
+	COMPLEMENT_INTERSECTION_EMPTY = 2,
+	SKIPPING_CONFIGURATION = 3,
+	DONE = 4
+};
+
 // Type definitions
 typedef std::map< std::string, GateCone > cone_map;
 typedef std::map< std::string, GateValue > value_map;
@@ -42,11 +51,11 @@ class Diagnostic
 		void solve( DiagnosesType& );
 
 		// Setting some output values to OKM
-		void all_diagnoses( DiagnosesType& );
+		ProcessingStatus all_diagnoses( DiagnosesType& );
 		// Setting some other output values to KOM
-		void diagnoses_one_config( DiagnosesType& );
+		ProcessingStatus diagnoses_one_config( DiagnosesType& );
 		// Calculating the final diagnoses solution
-		void diagnoses_one_choice( cone_map&, choice_list& );
+		ProcessingStatus diagnoses_one_choice( cone_map&, choice_list& );
 
 		void print_solutions( FILE* = stdout );
 
@@ -63,6 +72,8 @@ class Diagnostic
 
 		double get_choice_combinations_number();
 		void get_ith_choice( double, choice_list& );
+
+		bool check_end_of_time();
 
 		void mhs( cone_list& );
 		
@@ -88,6 +99,7 @@ class Diagnostic
 		// Times
 		double _execution_time;
 		double _mhs_processing_time;
+		std::chrono::high_resolution_clock::time_point _starting_time;
 
 		FILE* _output_file;
 };

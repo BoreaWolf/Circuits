@@ -11,6 +11,8 @@
 
 #include <string>
 
+#define MAX_MINUTES_TIME ( 5 )
+
 class StringConstants
 {
 	public:

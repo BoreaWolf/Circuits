@@ -144,7 +144,7 @@ class DiagnosticSolution
 				   gate_list& );
 
 		// New solution found
-		void found_new_solution();
+		void found_new_solution( bool = false );
 
 		void print( FILE* = stdout );
 	

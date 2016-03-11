@@ -51,8 +51,7 @@ Diagnostic::~Diagnostic()
 void Diagnostic::solve( DiagnosesType& diagnoses_type )
 {
 	// Keeping track of the time needed to calcualte the mhs
-	std::chrono::high_resolution_clock::time_point exec_start = 
-		std::chrono::high_resolution_clock::now();
+	_starting_time = std::chrono::high_resolution_clock::now();
 
 	fprintf( stdout, "Diagnostic::solve Solving '%s'\n",
 				_name.c_str() );
@@ -67,10 +66,10 @@ void Diagnostic::solve( DiagnosesType& diagnoses_type )
 	// Updating the processing time
 	_execution_time =
 		std::chrono::duration_cast< time_um >
-			( std::chrono::high_resolution_clock::now() - exec_start ) .count();
+			( std::chrono::high_resolution_clock::now() - _starting_time ).count();
 }
 
-void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
+ProcessingStatus Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 {
 	gate_list current_subset = gate_list();
 	value_map okm_configuration = value_map();
@@ -146,11 +145,15 @@ void Diagnostic::all_diagnoses( DiagnosesType& diagnoses_type )
 		// if the cones of the OK values do intersecate with a cone of a KO
 		// value then it needs to be processed
 		if( check_cone_intersection( okm_configuration ) )
-			diagnoses_one_config( diagnoses_type );
+			if( diagnoses_one_config( diagnoses_type ) 
+				== ProcessingStatus::OUT_OF_TIME )
+				return ProcessingStatus::OUT_OF_TIME;
 	}
+
+	return ProcessingStatus::DONE;
 }
 
-void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
+ProcessingStatus Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 {
 	GateCone ok_cones = GateCone();
 	cone_map cone_collection = cone_map();
@@ -204,7 +207,10 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 		get_choice_combinations_number() == 0 )
 	{
 		fprintf( stdout, "Diagnostic::diagnoses_one_config %s requested, skipping the current configuration because it can't create any KOM gates\n", to_string( diagnoses_type ) );
-		return;
+		if( check_end_of_time() )
+			return ProcessingStatus::OUT_OF_TIME;
+		else
+			return ProcessingStatus::SKIPPING_CONFIGURATION;;
 	}
 
 	// Skipping the no KOM solution when the diagnoses request KOM gates
@@ -251,12 +257,16 @@ void Diagnostic::diagnoses_one_config( DiagnosesType& diagnoses_type )
 			// where there are less or equal KOM selected than OKM 
 			// KOM.size() <= OKM.size()
 			if( _processing_kom.size() <= _processing_okm.size() )
-				diagnoses_one_choice( cone_collection, choices );
+				if( diagnoses_one_choice( cone_collection, choices ) 
+					== ProcessingStatus::OUT_OF_TIME )
+					return ProcessingStatus::OUT_OF_TIME;
 		}
 	}
+
+	return ProcessingStatus::DONE;
 }
 
-void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
+ProcessingStatus Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 									   choice_list& choices )
 {
 	cone_list result = cone_list();
@@ -282,7 +292,10 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 #ifdef DEBUG
 			fprintf( stdout, "Diagnostic::diagnoses_one_choice Stopping procedure: intersection or complement sets are empty\n" );
 #endif
-			return;
+			if( check_end_of_time() )
+				return ProcessingStatus::OUT_OF_TIME;
+			else
+				return ProcessingStatus::COMPLEMENT_INTERSECTION_EMPTY;
 		}
 
 #ifdef DEBUG
@@ -335,15 +348,19 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 	//	mhs( result );
 	
 	// Saving the Collection B
-	//	_solution.save( result,
-	//					_processing_ok, 
-	//					_processing_ko, 
-	//					_processing_okm,
-	//					_processing_kom );
+	_solution.save( result,
+					_processing_ok, 
+					_processing_ko, 
+					_processing_okm,
+					_processing_kom );
 	
 	// Indicating that a new solution has been found
-	_solution.found_new_solution();
+	//	_solution.found_new_solution();
 	
+	if( check_end_of_time() )
+		return ProcessingStatus::OUT_OF_TIME;
+
+	return ProcessingStatus::SOLUTION_FOUND;
 }
 
 void Diagnostic::print_solutions( FILE* file )
@@ -882,4 +899,29 @@ void Diagnostic::mhs( cone_list& cone_collection )
 	}
 #endif
 	
+}
+
+bool Diagnostic::check_end_of_time()
+{
+#ifdef DEBUG
+	fprintf( stdout, "Time passed: %lu s %lu m; max = %d m\n",
+		std::chrono::duration_cast< std::chrono::seconds >
+			( std::chrono::high_resolution_clock::now() - _starting_time ).count(),
+		std::chrono::duration_cast< std::chrono::minutes >
+			( std::chrono::high_resolution_clock::now() - _starting_time ).count(),
+		MAX_MINUTES_TIME );
+#endif
+	
+	// Checking if I'm running out of time
+	if( std::chrono::duration_cast< std::chrono::minutes >
+			( std::chrono::high_resolution_clock::now() - _starting_time ).count() 
+		>= MAX_MINUTES_TIME )
+	{
+#ifdef DEBUG
+		fprintf( stdout, "Diagnostic::check_end_of_time TRUE\n" );
+#endif
+		return true;
+	}
+
+	return false;
 }
