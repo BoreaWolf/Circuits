@@ -11,11 +11,12 @@
 
 #include "./GateCone.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
 
-#define PRINTING_GAP 100
+#define PRINTING_GAP 1000
 
 typedef std::vector< std::string > gate_list;
 
@@ -142,10 +143,13 @@ class DiagnosticSolution
 				   gate_list&,
 				   gate_list& );
 
+		// New solution found
+		void found_new_solution();
+
 		void print( FILE* = stdout );
 	
 	private:
-		int _solutions_found;
+		double _solutions_found;
 		FILE* _output_file;
 };
 

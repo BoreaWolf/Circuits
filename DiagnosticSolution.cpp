@@ -48,14 +48,7 @@ void DiagnosticSolution::save( std::vector< gate_list >& mhs,
 	// Saving the result on file, so I don't store anything in memory
 	SolutionData solution_temp = SolutionData( ok, ko, okm, kom, mhs );
 	solution_temp.print( _solutions_found, _output_file );
-	_solutions_found++;
-
-	// User interface stuff
-	if( _solutions_found % PRINTING_GAP == 0 )
-	{
-		fprintf( stdout, "." );
-		fflush( stdout );
-	}
+	found_new_solution();
 }
 
 void DiagnosticSolution::save( std::vector< GateCone >& B,
@@ -66,18 +59,27 @@ void DiagnosticSolution::save( std::vector< GateCone >& B,
 {
 	SolutionData solution_temp = SolutionData( ok, ko, okm, kom, B );
 	solution_temp.print( _solutions_found, _output_file );
+	found_new_solution();
+}
+
+void DiagnosticSolution::found_new_solution()
+{
 	_solutions_found++;
-		
+
 	// User interface stuff
-	if( _solutions_found % PRINTING_GAP == 0 )
+	if( fmod( _solutions_found, PRINTING_GAP ) == 0 )
 	{
 		fprintf( stdout, "." );
 		fflush( stdout );
+		fprintf( _output_file, "%.0lf ", _solutions_found );
+		if( fmod( _solutions_found, PRINTING_GAP * 10 ) == 0 )
+			fprintf( _output_file, "\n" );
+		fflush( _output_file );
 	}
 }
 
 void DiagnosticSolution::print( FILE* file )
 {
-	fprintf( file, "DiagnosticSolution::print %d solutions found\n",
+	fprintf( file, "DiagnosticSolution::print %.0lf solutions found\n",
 				_solutions_found );
 }

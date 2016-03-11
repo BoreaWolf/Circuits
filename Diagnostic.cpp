@@ -335,17 +335,20 @@ void Diagnostic::diagnoses_one_choice( cone_map& cone_collection,
 	//	mhs( result );
 	
 	// Saving the Collection B
-	_solution.save( result,
-					_processing_ok, 
-					_processing_ko, 
-					_processing_okm,
-					_processing_kom );
+	//	_solution.save( result,
+	//					_processing_ok, 
+	//					_processing_ko, 
+	//					_processing_okm,
+	//					_processing_kom );
+	
+	// Indicating that a new solution has been found
+	_solution.found_new_solution();
 	
 }
 
 void Diagnostic::print_solutions( FILE* file )
 {
-	fprintf( file, "Diagnostic::print_solutions\n" );
+	fprintf( file, "\nDiagnostic::print_solutions\n" );
 
 	_solution.print( file );
 
