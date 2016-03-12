@@ -2,8 +2,8 @@ Introduzione
 ============
 
 In questa documentazione verrà presentato il progetto relativo al corso di
-Algoritmi e Strutture Dati, materia facente parte della laurea magistrale in
-ingegneria informatica, tenuto dalla Professoressa Marina Zanella.
+Algoritmi e Strutture Dati, materia facente parte del percorso di laurea
+magistrale in ingegneria informatica, tenuto dalla professoressa Marina Zanella.
 
 Verranno di seguito illustrati la tipologia di problema e, in modo più
 approfondito, le metodologie risolutive utilizzate, trattando sia le strutture
@@ -13,9 +13,9 @@ accorgimenti presi durante lo sviluppo per ridurre i tempi di esecuzione e per
 ottimizzare le prestazioni per risolvere il problema.
 
 Il software è stato realizzato con il supporto della piattaforma web *GitHub*,
-strumento molto utile per la gestione del progetto durante la sua creazione e
-sviluppo; di conseguenza tutto il materiale può essere reperito nella repository
- <!--\href{https://github.com/BoreaWolf/Circuits}{Circuits}-->.
+strumento molto utile per la gestione di progetti durante la loro creazione e
+sviluppo; di conseguenza tutto il materiale può essere reperito anche nella
+repository <!--\href{https://github.com/BoreaWolf/Circuits}{Circuits}-->.
 
 Il file zip del progetto contiene, nella cartella principale, tutto il codice
 sorgente e tre sottocartelle: una contiene la documentazione, una le istanze e
@@ -29,14 +29,14 @@ contiene i risultati della simulazione; *test* contiene i risultati utilizzati
 nella documentazione.
 
 Il programma ha al suo interno un Makefile che permette di compilare i due
-programmi, chiamati *simulation* e *doctor*, i quali richiedono dei file
+programmi, chiamati *simulation* e *doctor*, i quali richiedono dei file in
 ingresso per poter essere eseguiti: *simulation* richiede una configurazione
 iniziale delle porte e una lista delle porte con guasti, mentre *doctor*
 richiede un unico file contenente i coni delle porte principali e i valori
 qualitativi ad esse associate.
 Per evitare la generazione manuale dei file per la parte di simulazione, è stato
 creato uno script che li genera casualmente a seconda del tipo di circuito
-desiderato. Inoltre sono a disposizione altri due script che risolvono un
-circuito dall'inizio alla fine (generazione input, simulazione e diagnosi) e
-risolvono tutti i circuiti noti automaticamente.
+desiderato. Inoltre altri due script sono stati implementati: il primo risolve
+un circuito dall'inizio alla fine (generazione input, simulazione e diagnosi);
+mentre il secondo risolve tutti i circuiti noti in maniera automatica.
 

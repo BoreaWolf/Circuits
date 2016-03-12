@@ -6,7 +6,7 @@ descritti attraverso i coni relativi alle proprie uscite principali. Nel nostro
 caso verranno utilizzati i risultati della parte di simulazione, ma nulla vieta
 di fornire altri file derivanti da fonti diverse.
 
-Di seguito verranno mostrato come è stata affrontata questa parte, ponendo
+Di seguito verrà mostrato come è stata affrontata questa parte, ponendo
 particolare attenzione a quali strutture dati sono state introdotte e quali
 metodologie sono state ritenute più opportune per risolvere le varie difficoltà
 incontrate.
@@ -19,8 +19,7 @@ per poter svolgere tutte le operazioni richieste. Questa classe si appoggia su
 un <!--\emph{set<string>}--> che rappresenta un cono di una particolare porta
 logica.  Il concetto di cono è fondamentale per tutta questa parte, anche se
 scendendo più nel dettaglio verrà un po' perso il concetto iniziale per il quale
-un cono è associato ad una particolare porta logica del circuito, mentre rimarrà
-ben forte il concetto di cono come tale.
+un cono è associato ad una particolare porta logica del circuito.
 
 La classe *GateCone* è stata estesa inserendo alcuni metodi molto utili per
 effettuare più velocemente operazioni insiemistiche richieste durante il
@@ -28,10 +27,10 @@ procedimento di formazione delle soluzioni delle diagnosi, quali possono essere
 *complement*, *intersection*, *intersecate*, *has_element* ed *empty*, oltre
 alla già presente *join*.
 
-La gestione e la logica di creazione di tutti gli insiemi per poter arrivare
-alla soluzione della diagnosi sono svolte dalla classe *Diagnostic*. In questa
-classe sono state usate diverse strutture per poter facilitare la ricerca dei
-vari gate a seconda della loro classificazione nei vari momenti della procedura
+La gestione e la logica di creazione di tutti gli insiemi per poter trovare le
+soluzioni della diagnosi sono svolte dalla classe *Diagnostic*. In questa classe
+sono state usate diverse strutture per poter facilitare la ricerca delle varie
+porte a seconda della loro classificazione nei vari momenti della procedura
 risolvente.
 
 Nella fase di caricamento da file vengono create le strutture base che
@@ -42,19 +41,19 @@ descrivono completamente il circuito in questione:
  2. <!--\emph{\char`_values}-->: *map<string, GateValue>* che indica i
  valori qualitativi associati ad ogni uscita principale del circuito;
  3. <!--\emph{\char`_ok\char`_gates} e \emph{\char`_ko\char`_gates}-->:
- <!--\emph{vector<string>}--> indicanti quali uscite principali hanno valore
- *OK* e *KO* rispettivamente.
+ <!--\emph{vector<string>}--> rispettivamente indicanti quali uscite principali
+ hanno valore *OK* e quali *KO*.
 
 Sono stati utilizzati anche altri <!--\emph{vector<string>}-->, molto utili
 durante la fase risolutiva, nei quali vengono mantenuti aggiornati i riferimenti
-a seconda di come vengono classificate le varie porte man mano che si procede
+alle varie porte a seconda della loro classificazione man mano che si procede
 nella costruzione della soluzione, ovvero a seconda dei quattro possibili valori
 che ogni porta può assumere (*OK*, *KO*, *OKM* e *KOM*, descritti
-dall'enumeratore *GateValue*). Queste strutture sono state ritenute necessarie
+nell'enumeratore *GateValue*). Queste strutture sono state ritenute necessarie
 in quanto diverse volte viene richiesto di operare solo sulle porte aventi un
 determinato valore di uscita e dover scorrere tutte le volte l'intera mappa dei
 componenti, controllando che il valore coincida con quello richiesto, è stato
-ritenuto una totale inefficenza facilmente migliorabile. Ad ogni passo in cui
+ritenuto una totale inefficienza facilmente migliorabile. Ad ogni passo in cui
 vengono cambiati i valori associati ad un porta, queste strutture vengono
 aggiornate così da rispecchiare la situazione attuale.
 
@@ -65,7 +64,7 @@ una struttura che contiene, oltre alla soluzione trovata, l'intero stato
 corrente associato alla soluzione, ovvero i valori qualitativi che sono stati
 assegnati a ciascuna porta. Avremo di conseguenza quattro
 <!--\emph{vector<string>}--> che rappresentano quali porte logiche sono state
-assegnate a quali valori e un <!--\emph{vector<vector<string>>}--> che
+assegnate a quali valori e un <!--\emph{vector< vector<string> >}--> che
 rappresenta la soluzione.
 
 ## Algoritmi
@@ -83,7 +82,7 @@ Per calcolare l'i-esimo sotto-insieme delle porte aventi valore *OK*
 (codice [](#code:dia_ith_ok_subset)), il valore *i* viene rappresentato in
 codifica binaria con un numero di bit pari al numero di porte *OK* e si compone
 il sotto-insieme includendo quelle porte aventi associato valore 1 nella
-rappresentazione di *i*.
+rappresentazione binaria di *i*.
 
 A causa dell'elevato numero di possibili combinazioni, la combinazione richiesta
 viene rappresentata come un *double* e non come un *int*, come verrebbe più
@@ -124,8 +123,8 @@ void Diagnostic::get_ith_ok_subset( double subset_number, gate_list& subset )
 ### Calcolo delle combinazioni delle coppie OKM/KOM
 
 Ispirato dall'algoritmo utilizzato per calcolare i sotto-insiemi delle porte
-*OK* (codice [](#code:dia_ith_choice)), per calcolare l'i-esima combinazione di
-coppie di porte *(OKM, KOM)*, il valore *i* viene rappresentato in codifica
+*OK*, per calcolare l'i-esima combinazione di coppie di porte *(OKM, KOM)*
+(codice [](#code:dia_ith_choice)), il valore *i* viene rappresentato in codifica
 n-aria, dove *n* coincide con il numero di porte *KO*, con un numero di cifre
 pari al numero di porte *OKM*, così da creare una scelta per ognuna. A seconda
 del valore della cifra, alla corrente porta *OKM* viene associata una differente
@@ -188,9 +187,8 @@ programma viene salvato e confrontato con il resto del programma.
 
 ## Miglioramenti
 
-Come suggerito nelle slide associate al problema, sono stati implementati i
-miglioramenti così da evitare il processamento inutile di insiemi che non
-avrebbero portato ad una soluzione.
+Come suggerito nelle slide fornite con il problema, sono stati implementati i
+miglioramenti così da ridurre il numero delle combinazioni da processare.
 
 Il primo miglioramento suggerito richiede di verificare che il cono della porta
 logica avente valore *OK* abbia intersezione non nulla con almeno un cono di una
@@ -201,12 +199,12 @@ in quanto il controllo avviene nella parte di assegnazione dei valori *OKM* e
 alcune di queste porte potrebbero avere il proprio valore già cambiato) e
 verificando che l'intersezione con i coni delle porte *KO* sia non nulla.
 Il calcolo dell'interesezione viene effettuato tra i due coni ed è quindi di
-competenza della classe *GateCone*; l'algoritmo è un semplice algoritmo di
-ricerca dove il primo cono viene passato in rassegna elemento per elemento
-ricercando se tale elemento sia presente anche nel secondo cono e se viene
-trovato si conclude la procedura indicando che tra i due coni vi è
-un'intersezione. Al contrario se la ricerca non è negativa per tutti gli
-elementi verrà indicato che tra i due coni non vi è alcuna intersezione.
+competenza della classe *GateCone*.
+Il procedimento è un semplice algoritmo di ricerca dove il primo cono viene
+passato in rassegna ricercando se l'elemento corrente sia presente anche nel
+secondo cono e, se viene trovato, la procedura viene terminata indicando che tra
+i due coni vi è un'intersezione. Al contrario se la ricerca è negativa per tutti
+gli elementi verrà indicato che tra i due coni non vi è alcuna intersezione.
 
 Il secondo miglioramento suggerito richiede di controllare che il numero di
 elementi contrassegnati come *KOM* sia in numero minore degli elementi *OKM*,

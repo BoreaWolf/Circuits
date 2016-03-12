@@ -66,7 +66,7 @@ state trovate 94 soluzioni in un tempo pari a:
 Come si può notare la maggior parte del tempo è stato impiegato per il calcolo
 dei Minimal Hitting Set[^MHS_Time]: per questo motivo si è deciso di mantenere
 questo test come dimostrazione della pesantezza di calcolo associata a questa
-parte e di escluderla nei test successivi, andando a salvare la *Collection B*
+parte e di escluderla dai test successivi, andando a salvare la *Collection B*
 anziché il risultato del MHS.
 
 Una volta escluso il calcolo dei MHS e passando ad istanze più grandi sono sorti
@@ -74,25 +74,59 @@ problemi di diverso tipo, ovvero il numero di possibili combinazioni calcolabili
 all'interno dell'intero procedimento sono cresciute esponenzialmente e non è più
 stato possibile calcolarle tutte in tempi ragionevoli. Per i circuiti C17 e C432
 non ci sono problemi di questo tipo, ma già dal C499 il numero di soluzioni è
-enorme: allo stato attuale sono state trovate più di 8.500.000 soluzioni dopo 
-circa 470 minuti di esecuzione (quasi 8 ore).
+enorme: allo stato attuale sono state trovate più di 11.000.000 di soluzioni
+dopo circa 610 minuti di esecuzione (più di 10 ore).
 
 Inoltre, in un primo momento i risultati venivano tenuti in memoria in unico
 *vector*, ma col crescere delle istanze questo causava problemi di memoria. Per
 ovviare al problema si è deciso di non salvare nel programma i risultati, ma di
 scriverli direttamente sul file di uscita (procedimento che sarebbe avvenuto
 anche nel caso precedente, ma solo al termine dell'esecuzione completa della
-diagnosi). Successivamente anche anche questa metodologia non si è rivelata
+diagnosi). Successivamente anche questa metodologia non si è rivelata
 particolarmente efficace, in quanto andava a generare dei file di dimensioni
 enormi[^Solution_File_Size], rendendoli così inutilizzabili anche per eventuali
-processamenti futuri. Al termine si è deciso di stampare esclusivamente il
-numero di soluzioni trovate e non la loro composizione.
+studi futuri. Al termine si è deciso di stampare esclusivamente il numero di
+soluzioni trovate e non la loro composizione.
 
 L'unione di questi problemi ha portato a restringere ancor più il programma,
-ovvero imponendo un limite temporale massimo per l'esecuzione di ciascuna
-istanza. Per poter ottenere dei risultati, sono stati usati tempi pari ad 1
-minuto e 5 minuti per circuito, ogni circuito è stato successivamente testato su
-5 configurazioni generate casualmente.
+imponendo un limite temporale massimo per l'esecuzione di ciascuna istanza.  Per
+poter ottenere dei risultati, sono stati usati tempi pari ad 1 minuto e 5 minuti
+per circuito, ogni circuito è stato successivamente testato su 5 diverse
+configurazioni generate casualmente. I risultati ottenuti dopo questi test sono
+stati rappresentati in due grafici([](#fig:test_diagnostic_1) e
+[](#fig:test_diagnostic_5)) per mostrare come il numero di soluzioni trovate
+aumenti all'aumentare del tempo concesso al programma per comporre le varie
+combinazioni. Per i primi due circuiti le soluzioni non variano in quanto
+entrambi vengono risolti prima che il vincolo temporale imposto sia violato e,
+di conseguenza, vengono trovate tutte le soluzioni associate a quei circuiti,
+date le rispettive configuazioni iniziali.
+
+Le soluzioni che si trovano dipendono fortemente dalla configurazione iniziale
+fornita alla parte di simulazione, in quanto essa determina i valori qualitativi
+di ciascuna porta logica e di conseguenza le combinazioni alla base delle
+possibili soluzioni che si possono andare a creare. Per come è strutturato il
+programma, le soluzioni che si trovano dopo 5 minuti sono un'estensione di
+quelle trovate dopo 1 minuto, ovvero la generazione delle combinazioni non è
+variabile e segue un preciso schema logico: questo potrebbe essere utilizzato a
+proprio vantaggio nel caso in cui si volessero calcolare nuove soluzioni su una
+stessa istanza, sapendo quante soluzioni sono già state trovate nelle esecuzioni
+precedenti.
+
+<!--
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{diagnostic_results_1_min}
+	\caption{Risultati dopo 1 minuto d'esecuzione}
+	\label{fig:test_diagnostic_1}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{diagnostic_results_5_min}
+	\caption{Risultati dopo 5 minuti d'esecuzione}
+	\label{fig:test_diagnostic_5}
+\end{figure}
+-->
 
 [^MHS_Time]: approssimativamente 11 ore e mezza richieste per il calcolo di 94
 MHS.
