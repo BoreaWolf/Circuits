@@ -17,7 +17,7 @@ circuit_files = circuit_files.zip( circuit_files.map{ |x| x[ /\d+/ ].to_i } )
 
 # Solving the same problem n times
 tests_number = ( ARGV[ 0 ] || 5 ).to_i
-# I'm also passing the type of Diagnoses the I want to do
+# I'm also passing the type of Diagnoses that I want to do
 # The types are:
 #  - ALL_DIAGNOSES
 #  - NO_MASKING
